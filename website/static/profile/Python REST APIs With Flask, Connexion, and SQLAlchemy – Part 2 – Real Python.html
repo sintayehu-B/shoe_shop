@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<!-- saved from url=(0055)https://realpython.com/flask-connexion-rest-api-part-2/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="https://files.realpython.com/" rel="preconnect">
+<title>Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python</title>
+<meta name="author" content="Real Python">
+<meta name="description" content="In Part 2 of this series, you&#39;ll learn how to persist the CRUD operations from the Python-powered REST API created in Part 1 to a database using SQLAlchemy and Marshmallow.">
+<meta name="keywords" content="">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover">
+<link rel="stylesheet" href="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/font.32be62914940.css">
+<link rel="stylesheet" href="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/realpython.min.cf7b43925672.css">
+<link rel="canonical" href="https://realpython.com/flask-connexion-rest-api-part-2/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://files.realpython.com/media/Building-and-Documenting-Python-REST-APIs-With-Flask-and-Connexion_Watermarked.4f126f60be3f.jpg">
+<meta property="og:image" content="https://files.realpython.com/media/Building-and-Documenting-Python-REST-APIs-With-Flask-and-Connexion_Watermarked.4f126f60be3f.jpg">
+<meta name="twitter:creator" content="@realpython">
+<meta name="twitter:site" content="@realpython">
+<meta property="og:title" content="Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://realpython.com/flask-connexion-rest-api-part-2/">
+<meta property="og:description" content="In Part 2 of this series, you&#39;ll learn how to persist the CRUD operations from the Python-powered REST API created in Part 1 to a database using SQLAlchemy and Marshmallow.">
+<link href="https://cdn.realpython.com/static/favicon.68cbf4197b0c.png" rel="icon">
+<link href="https://realpython.com/atom.xml" rel="alternate" title="Real Python" type="application/atom+xml">
+<link rel="manifest" href="https://realpython.com/manifest.json">
+<script async="" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/72a4e032ed"></script><script async="" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/fbevents.js"></script><script type="text/javascript" async="" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/6214500.js"></script><script async="" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/analytics.js"></script><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-35184939-1', 'auto', {'allowLinker': true});
+
+  
+
+  
+
+  
+  
+  ga('set', {
+    dimension1: false,
+    dimension2: false
+  });
+  
+
+  ga('send', 'pageview');
+  
+</script>
+<script async="" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/api.js"></script><script src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/count-data.js"></script></head>
+<body class="" style="" data-new-gr-c-s-check-loaded="14.1014.0" data-gr-ext-installed="">
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark flex-column nav-message" style="">
+<div class="container flex-row">
+<a class="navbar-brand" href="https://realpython.com/">
+<img src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/real-python-logo.893c30edea53.svg" height="40" class="d-inline-block align-top" alt="Real Python">
+</a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse navbar-nav-scroll" id="navbarSupportedContent">
+<ul class="navbar-nav mr-2 flex-fill">
+<li class="nav-item">
+<a class="nav-link" href="https://realpython.com/start-here/">Start&nbsp;Here</a>
+</li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="https://realpython.com/flask-connexion-rest-api-part-2/#" id="navbarDropdownLibrary" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+<span class="fa fa-graduation-cap"></span> Learn Python
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdownLibrary">
+<a class="dropdown-item" href="https://realpython.com/" style="color: #ff7e73; line-height: 110%;"><i class="fa fa-fw mr-1 fa-graduation-cap"></i> Python Tutorials →<br><small class="text-secondary">In-depth articles and tutorials</small></a>
+<a class="dropdown-item" href="https://realpython.com/courses/" style="color: #abe5b1; line-height: 110%;"><i class="fa fa-fw mr-1 fa-film"></i> Video Courses →<br><small class="text-secondary">Step-by-step video lessons</small></a>
+<a class="dropdown-item" href="https://realpython.com/quizzes/" style="color: #abe0e5; line-height: 110%;"><i class="fa fa-fw mr-1 fa-trophy"></i> Quizzes →<br><small class="text-secondary">Check your learning progress</small></a>
+<a class="dropdown-item" href="https://realpython.com/learning-paths/" style="color: #ffc873; line-height: 110%;"><i class="fa fa-fw mr-1 fa-map-o"></i> Learning Paths →<br><small class="text-secondary">Guided study plans for accelerated learning</small></a>
+<a class="dropdown-item" href="https://realpython.com/community/" style="color: #e5c6ab; line-height: 110%;"><i class="fa fa-fw mr-1 fa-slack"></i> Community →<br><small class="text-secondary">Learn with other Pythonistas</small></a>
+<a class="dropdown-item pb-3" href="https://realpython.com/tutorials/all/" style="color: #b8abe5; line-height: 110%;"><i class="fa fa-fw mr-1 fa-tags"></i> Topics →<br><small class="text-secondary">Focus on a specific area or skill level</small></a>
+<a class="dropdown-item border-top" href="https://realpython.com/account/join/"><i class="fa fa-fw fa-star text-warning"></i> Unlock All Content</a>
+</div>
+</li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="https://realpython.com/flask-connexion-rest-api-part-2/#" id="navbarDropdownBooksCourses" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+Store
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdownBooksCourses">
+<a class="dropdown-item" href="https://realpython.com/account/join/"><i class="fa fa-fw fa-star text-warning"></i> RP Membership</a>
+<a class="dropdown-item" href="https://realpython.com/products/python-basics-book/">Python Basics Book</a>
+<a class="dropdown-item" href="https://realpython.com/products/python-tricks-book/">Python Tricks Book</a>
+<a class="dropdown-item" href="https://realpython.com/products/cpython-internals-book/">CPython Internals Book</a>
+<a class="dropdown-item" href="https://realpython.com/products/real-python-course/">The Real Python Course</a>
+<a class="dropdown-item" href="https://realpython.com/products/managing-python-dependencies/">Managing Python Dependencies</a>
+<a class="dropdown-item" href="https://realpython.com/products/sublime-python/">Sublime Text + Python Setup</a>
+<a class="dropdown-item" href="https://realpython.com/products/pythonic-wallpapers/">Pythonic Wallpapers Pack</a>
+<a class="dropdown-item" href="https://nerdlettering.com/" target="_blank">Python Mugs, T-Shirts, and More</a>
+<a class="dropdown-item" href="https://www.pythonistacafe.com/" target="_blank">Pythonista Cafe Community</a>
+<a class="dropdown-item border-top" href="https://realpython.com/products/">Browse All »</a>
+</div>
+</li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="https://realpython.com/flask-connexion-rest-api-part-2/#" id="navbarDropdownMore" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+More
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdownMore">
+<a class="dropdown-item" href="https://realpython.com/newsletter/">Python Newsletter</a>
+<a class="dropdown-item" href="https://realpython.com/podcasts/rpp/">Python Podcast</a>
+<a class="dropdown-item" href="https://www.pythonjobshq.com/" target="_blank">Python Job Board</a>
+<a class="dropdown-item" href="https://realpython.com/team/">Meet the Team</a>
+<a class="dropdown-item" href="https://realpython.com/write-for-us/">Become a Tutorial Author</a>
+<a class="dropdown-item" href="https://realpython.com/become-an-instructor/">Become a Video Instructor</a>
+</div>
+</li>
+</ul>
+<div class="d-block d-xl-none">
+<ul class="navbar-nav">
+ <li class="nav-item">
+<a class="nav-link" href="https://realpython.com/search" title="Search"><span class="d-block d-lg-none"><i class="fa fa-search"></i> Search</span><span class="d-none d-lg-block"><i class="fa fa-search"></i></span></a>
+</li>
+</ul>
+</div>
+<div class="d-none d-xl-flex align-items-center mr-2">
+<form class="form-inline" action="https://realpython.com/search" method="GET">
+<a class="js-search-form-submit position-absolute" href="https://realpython.com/search" title="Search"><i class="fa fa-search fa-fw text-muted pl-2"></i></a>
+<input class="search-field form-control form-control-md mr-sm-1 mr-lg-2 w-100" style="padding-left: 2rem;" maxlength="50" type="search" placeholder="Search" aria-label="Search" name="q">
+<input type="hidden" name="_from" value="nav">
+</form>
+</div>
+<ul class="navbar-nav">
+<li class="nav-item form-inline">
+<a class="ml-2 ml-lg-0 btn btn-sm btn-primary px-3" href="https://realpython.com/account/join/">Join</a>
+</li>
+<li class="nav-item">
+<a class="btn text-light" href="https://realpython.com/account/login/">Sign‑In</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="flex-row w-100" style="border-top: 1px dashed #ffc107 !important;">
+<div class="container">
+<a class="link-unstyled mx-auto" href="https://realpython.com/free-courses-march-2020"><p class="my-1 small"><span class="text-warning">😷 <strong>Stuck at home?</strong> Enjoy free courses, on&nbsp;us&nbsp;→</span></p></a>
+</div>
+</div>
+</nav>
+<div class="container main-content">
+<div class="row justify-content-center">
+<div class="col-md-11 col-lg-8 article with-headerlinks">
+<figure class="embed-responsive embed-responsive-16by9">
+<img class="card-img-top m-0 p-0 embed-responsive-item rounded" style="object-fit: contain;" alt="Building Flask REST APIs" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/Building-and-Documenting-Python-REST-APIs-With-Flask-and-Connexion_Watermarked.webp" width="1920" height="1080" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/Building-and-Documenting-Python-REST-APIs-With-Flask-and-Connexion_Watermarked.4f126f60be3f.jpg&amp;w=480&amp;sig=b2266202f56c1d8f37d1019b4ed4d13ea399041c 480w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/Building-and-Documenting-Python-REST-APIs-With-Flask-and-Connexion_Watermarked.4f126f60be3f.jpg&amp;w=960&amp;sig=fe89240319d6d421895a14340bd0147e0a0fd474 960w, https://files.realpython.com/media/Building-and-Documenting-Python-REST-APIs-With-Flask-and-Connexion_Watermarked.4f126f60be3f.jpg 1920w" sizes="75vw">
+</figure>
+<h1>Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2</h1>
+<p class="mb-0">
+<span class="text-muted">by <a class="text-muted" href="https://realpython.com/flask-connexion-rest-api-part-2/#author">Doug Farrell</a>
+<span class="ml-2 mr-1 fa fa-comments"></span><a class="text-muted" href="https://realpython.com/flask-connexion-rest-api-part-2/#reader-comments"><span class="disqus-comment-count" data-disqus-identifier="https://realpython.com/flask-connexion-rest-api-part-2/">85 Comments</span></a>
+<span class="ml-2 fa fa-tags"></span>
+<a href="https://realpython.com/tutorials/api/" class="badge badge-light text-muted">api</a>
+<a href="https://realpython.com/tutorials/databases/" class="badge badge-light text-muted">databases</a>
+<a href="https://realpython.com/tutorials/flask/" class="badge badge-light text-muted">flask</a>
+<a href="https://realpython.com/tutorials/intermediate/" class="badge badge-light text-muted">intermediate</a>
+<a href="https://realpython.com/tutorials/web-dev/" class="badge badge-light text-muted">web-dev</a>
+</span></p><div class="d-sm-flex flex-row justify-content-between my-2">
+<div class="jsCompletionStatusWidget btn-group mb-0">
+<button title="Click to mark as completed" class="jsBtnCompletion btn btn-secondary border-right" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">Mark as Completed</button>
+<button title="Add bookmark" class="jsBtnBookmark btn btn-secondary border-left"><i class="fa fa-fw fa-bookmark-o"></i></button>
+</div>
+<div class="align-self-center">
+<span>
+<a target="_blank" rel="nofollow" href="https://twitter.com/intent/tweet/?text=Check%20out%20this%20%23Python%20tutorial:%20Python%20REST%20APIs%20With%20Flask%2C%20Connexion%2C%20and%20SQLAlchemy%20%E2%80%93%20Part%202%20by%20@realpython&amp;url=https%3A//realpython.com/flask-connexion-rest-api-part-2/" class="mr-1 badge badge-twitter text-light mb-1"><i class="mr-1 fa fa-twitter text-light"></i>Tweet</a>
+<a target="_blank" rel="nofollow" href="https://facebook.com/sharer/sharer.php?u=https%3A//realpython.com/flask-connexion-rest-api-part-2/" class="mr-1 badge badge-facebook text-light mb-1"><i class="mr-1 fa fa-facebook text-light"></i>Share</a>
+<a target="_blank" rel="nofollow" href="mailto:?subject=Python%20article%20for%20you&amp;body=Check%20out%20this%20Python%20tutorial:%0A%0APython%20REST%20APIs%20With%20Flask%2C%20Connexion%2C%20and%20SQLAlchemy%20%E2%80%93%20Part%202%0A%0Ahttps%3A//realpython.com/flask-connexion-rest-api-part-2/" class="mr-1 badge badge-red text-light mb-1"><i class="mr-1 fa fa-envelope text-light"></i>Email</a>
+</span>
+</div>
+</div>
+<p></p>
+<div class="article-body">
+<div class="bg-light sidebar-module sidebar-module-inset" id="toc">
+<p class="h3 mb-2 text-muted">Table of Contents</p>
+<div class="toc">
+<ul>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#who-this-article-is-for">Who This Article Is For</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#additional-dependencies">Additional Dependencies</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#people-data">People Data</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#database-interaction">Database Interaction</a><ul>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#little-bobby-tables">Little Bobby Tables</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#modeling-data-with-sqlalchemy">Modeling Data With SQLAlchemy</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#serializingdeserializing-modeled-data">Serializing/Deserializing Modeled Data</a></li>
+</ul>
+</li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#create-the-initialized-database">Create the Initialized Database</a><ul>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#config-module">Config Module</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#models-module">Models Module</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#creating-the-database">Creating the Database</a></li>
+</ul>
+</li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#using-the-database">Using the Database</a><ul>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-rest-api">Update the REST API</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-rest-api-handlers">Update the REST API Handlers</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-swagger-ui">Update the Swagger UI</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-web-application">Update the Web Application</a></li>
+</ul>
+</li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#example-code">Example Code</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#conclusion">Conclusion</a></li>
+</ul>
+</div>
+</div>
+<div class="sidebar-module sidebar-module-inset p-0" style="overflow:hidden;">
+<div style="display:block;position:relative;">
+<div style="display:block;width:100%;padding-top:12.5%;"></div>
+<div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/5212255200/?c=56207115366&amp;p=58946116052&amp;r=84736" rel="nofollow" target="_blank"><img src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/655d5b5272a07eaebc6a0885e3bc64ec" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div>
+</div>
+<a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"> <i class="fa fa-info-circle" aria-hidden="true"> </i> Remove ads</a>
+</div>
+<p>In <a href="https://realpython.com/flask-connexion-rest-api/">Part 1</a> of this series, you used Flask and Connexion to create a <a href="https://realpython.com/api-integration-in-python/">REST API</a> providing <a href="https://en.wikipedia.org/wiki/Create,_read,_update_and_delete">CRUD operations</a> to a simple in-memory structure called <code>PEOPLE</code>. That worked to demonstrate how the Connexion module helps you build a nice REST API along with interactive documentation.</p>
+<p>As some noted in the comments for Part 1, the <code>PEOPLE</code> structure is re-initialized every time the application is restarted. <strong>In this article, you’ll learn how to store the <code>PEOPLE</code> structure, and the actions the API provides, to a database using <a href="https://www.sqlalchemy.org/">SQLAlchemy</a> and <a href="https://marshmallow.readthedocs.io/en/3.0/">Marshmallow</a>.</strong></p>
+<p><a href="https://realpython.com/python-sqlite-sqlalchemy/">SQLAlchemy</a> provides an Object Relational Model (<a href="https://en.wikipedia.org/wiki/Object-relational_mapping">ORM</a>), which stores Python objects to a database representation of the object’s data. That can help you continue to think in a Pythonic way and not be concerned with how the object data will be represented in a database.</p>
+<p>Marshmallow provides functionality to serialize and deserialize Python objects as they flow out of and into our <a href="https://realpython.com/python-json/">JSON</a>-based REST API. Marshmallow converts <a href="https://realpython.com/python3-object-oriented-programming/">Python class instances</a> to objects that can be converted to JSON.</p>
+<p>You can find the Python code for this article <a href="https://github.com/realpython/materials/tree/master/flask-connexion-rest-part-2/version_1">here</a>.</p>
+<div class="alert alert-warning" role="alert"><p><strong>Free Bonus:</strong> <a href="https://realpython.com/flask-connexion-rest-api-part-2/" class="alert-link" data-toggle="modal" data-target="#modal-rest-api-guide-exampes" data-focus="false">Click here to download a copy of the "REST API Examples" Guide</a> and get a hands-on introduction to Python + REST API principles with actionable examples.</p></div>
+<div><div class="rounded border border-light" style="display:block;position:relative;"><div style="display:block;width:100%;padding-top:12.5%;"></div><div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/67002144333/?c=56207115366&amp;p=58946116052&amp;r=55370" rel="nofollow" target="_blank"><img src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/e822f46aa4962c3565f257bb0c4679a8" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div></div><a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i aria-hidden="true" class="fa fa-info-circle"> </i> Remove ads</a></div><section class="section2" id="who-this-article-is-for"><h2>Who This Article Is For<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#who-this-article-is-for" title="Permanent link"></a></h2>
+<p>If you enjoyed Part 1 of this series, this article expands your tool belt even further. You’ll be using SQLAlchemy to access a database in a more Pythonic way than straight <a href="https://en.wikipedia.org/wiki/SQL">SQL</a>. You’ll also use Marshmallow to serialize and deserialize the data managed by the REST API. To do this, you’ll be making use of basic <a href="https://realpython.com/python3-object-oriented-programming/">Object Oriented Programming</a> features available in Python.</p>
+<p>You’ll also be using SQLAlchemy to create a database as well as interact with it. This is necessary to get the REST API up and running with the <code>PEOPLE</code> data used in Part 1.</p>
+<p>The web application presented in Part 1 will have its HTML and JavaScript files modified in minor ways in order to support the changes as well. You can review the final version of the code from Part 1 <a href="https://github.com/realpython/materials/tree/master/flask-connexion-rest/version_4">here</a>.</p>
+</section><section class="section2" id="additional-dependencies"><h2>Additional Dependencies<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#additional-dependencies" title="Permanent link"></a></h2>
+<p>Before you get started building this new functionality, you’ll need to update the <a href="https://realpython.com/python-virtual-environments-a-primer/">virtualenv</a> you created in order to run the Part 1 code, or create a new one for this project. The easiest way to do that after you have activated your virtualenv is to run this command:</p>
+<div class="highlight sh"><pre><span></span><code><span class="gp">$ </span>pip install Flask-SQLAlchemy flask-marshmallow marshmallow-sqlalchemy marshmallow
+</code></pre></div>
+<p>This adds more functionality to your virtualenv:</p>
+<ol>
+<li>
+<p><strong><code>Flask-SQLAlchemy</code></strong> adds SQLAlchemy, along with some tie-ins to Flask, allowing programs to access databases.</p>
+</li>
+<li>
+<p><strong><code>flask-marshmallow</code></strong> adds the Flask parts of Marshmallow, which lets programs convert Python objects to and from serializable structures.</p>
+</li>
+<li>
+<p><strong><code>marshmallow-sqlalchemy</code></strong> adds some Marshmallow hooks into SQLAlchemy to allow programs to serialize and deserialize Python objects generated by SQLAlchemy.</p>
+</li>
+<li>
+<p><strong><code>marshmallow</code></strong> adds the bulk of the Marshmallow functionality.</p>
+</li>
+</ol>
+</section><section class="section2" id="people-data"><h2>People Data<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#people-data" title="Permanent link"></a></h2>
+<p>As mentioned above, the <code>PEOPLE</code> data structure in the previous article is an in-memory Python dictionary. In that dictionary, you used the person’s last name as the lookup key. The data structure looked like this in the code:</p>
+<div class="highlight python"><pre><span></span><code><span class="c1"># Data to serve with our API</span>
+<span class="n">PEOPLE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Farrell"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"fname"</span><span class="p">:</span> <span class="s2">"Doug"</span><span class="p">,</span>
+        <span class="s2">"lname"</span><span class="p">:</span> <span class="s2">"Farrell"</span><span class="p">,</span>
+        <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">get_timestamp</span><span class="p">()</span>
+    <span class="p">},</span>
+    <span class="s2">"Brockman"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"fname"</span><span class="p">:</span> <span class="s2">"Kent"</span><span class="p">,</span>
+        <span class="s2">"lname"</span><span class="p">:</span> <span class="s2">"Brockman"</span><span class="p">,</span>
+        <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">get_timestamp</span><span class="p">()</span>
+    <span class="p">},</span>
+    <span class="s2">"Easter"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"fname"</span><span class="p">:</span> <span class="s2">"Bunny"</span><span class="p">,</span>
+        <span class="s2">"lname"</span><span class="p">:</span> <span class="s2">"Easter"</span><span class="p">,</span>
+        <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">get_timestamp</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The modifications you’ll make to the program will move all the data to a database table. This means the data will be saved to your disk and will exist between runs of the <code>server.py</code> program.</p>
+<p>Because the last name was the dictionary key, the code restricted changing a person’s last name: only the first name could be changed. In addition, moving to a database will allow you to change the last name as it will no longer be used as the lookup key for a person.</p>
+<p>Conceptually, a database table can be thought of as a two-dimensional array where the rows are records, and the columns are fields in those records.</p>
+<p>Database tables usually have an auto-incrementing integer value as the lookup key to rows. This is called the primary key. Each record in the table will have a primary key whose value is unique across the entire table. Having a primary key independent of the data stored in the table frees you to modify any other field in the row.</p>
+<div class="alert alert-primary" role="alert">
+<p><strong>Note:</strong></p>
+<p>The auto-incrementing primary key means that the database takes care of:</p>
+<ul>
+<li>Incrementing the largest existing primary key field every time a new record is inserted in the table</li>
+<li>Using that value as the primary key for the newly inserted data</li>
+</ul>
+<p>This guarantees a unique primary key as the table grows.</p>
+</div>
+<p>You’re going to follow a database convention of naming the table as singular, so the table will be called <code>person</code>. Translating our <code>PEOPLE</code> structure above into a database table named <code>person</code> gives you this:</p>
+<div class="table-responsive">
+<table class="table table-hover">
+<thead>
+<tr>
+<th>person_id</th>
+<th>lname</th>
+<th>fname</th>
+<th>timestamp</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Farrell</td>
+<td>Doug</td>
+<td>2018-08-08 21:16:01.888444</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Brockman</td>
+<td>Kent</td>
+<td>2018-08-08 21:16:01.889060</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Easter</td>
+<td>Bunny</td>
+<td>2018-08-08 21:16:01.886834</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Each column in the table has a field name as follows:</p>
+<ul>
+<li><strong><code>person_id</code>:</strong> primary key field for each person</li>
+<li><strong><code>lname</code>:</strong> last name of the person</li>
+<li><strong><code>fname</code>:</strong> first name of the person</li>
+<li><strong><code>timestamp</code>:</strong> timestamp associated with insert/update actions</li>
+</ul>
+<div><div class="rounded border border-light" style="display:block;position:relative;"><div style="display:block;width:100%;padding-top:12.5%;"></div><div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/2142316168/?c=50610331919&amp;p=58946116052&amp;r=09871" rel="nofollow" target="_blank"><img src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/c75ad5c06078a2b00c305659dda76f56" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div></div><a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i aria-hidden="true" class="fa fa-info-circle"> </i> Remove ads</a></div></section><section class="section2" id="database-interaction"><h2>Database Interaction<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#database-interaction" title="Permanent link"></a></h2>
+<p>You’re going to use <a href="https://www.sqlite.org/index.html">SQLite</a> as the database engine to store the <code>PEOPLE</code> data. SQLite is the mostly widely distributed database in the world, and it comes with Python for free. It’s fast, performs all its work using files, and is suitable for a great many projects. It’s a complete RDBMS (Relational Database Management System) that includes SQL, the language of many database systems.</p>
+<p>For the moment, imagine the <code>person</code> table already exists in a SQLite database. If you’ve had any experience with RDBMS, you’re probably aware of SQL, the Structured Query Language most RDBMSes use to interact with the database.</p>
+<p>Unlike programming languages like Python, SQL doesn’t define <em>how</em> to get the data: it describes <em>what</em> data is desired, leaving the <em>how</em> up to the database engine.</p>
+<p>A SQL query getting all of the data in our <code>person</code> table, sorted by last name, would look this this:</p>
+<div class="highlight sql"><pre><span></span><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">person</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="s1">'lname'</span><span class="p">;</span>
+</code></pre></div>
+<p>This query tells the database engine to get all the fields from the person table and sort them in the default, ascending order using the <code>lname</code> field. </p>
+<p>If you were to run this query against a SQLite database containing the <code>person</code> table, the results would be a set of records containing all the rows in the table, with each row containing the data from all the fields making up a row. Below is an example using the SQLite command line tool running the above query against the <code>person</code> database table:</p>
+<div class="highlight sh"><pre><span></span><code><span class="go">sqlite&gt; SELECT * FROM person ORDER BY lname;</span>
+<span class="go">2|Brockman|Kent|2018-08-08 21:16:01.888444</span>
+<span class="go">3|Easter|Bunny|2018-08-08 21:16:01.889060</span>
+<span class="go">1|Farrell|Doug|2018-08-08 21:16:01.886834</span>
+</code></pre></div>
+<p>The output above is a list of all the rows in the <code>person</code> database table with pipe characters (‘|’) separating the fields in the row, which is done for display purposes by SQLite.</p>
+<p>Python is completely capable of interfacing with many database engines and executing the SQL query above. The results would most likely be a list of tuples. The outer list contains all the records in the <code>person</code> table. Each individual inner tuple would contain all the data representing each field defined for a table row.</p>
+<p>Getting data this way isn’t very Pythonic. The list of records is okay, but each individual record is just a tuple of data. It’s up to the program to know the index of each field in order to retrieve a particular field. The following Python code uses SQLite to demonstrate how to run the above query and display the data:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">'people.db'</span><span class="p">)</span>
+<span class="linenos"> 4</span><span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+<span class="linenos"> 5</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">'SELECT * FROM person ORDER BY lname'</span><span class="p">)</span>
+<span class="linenos"> 6</span><span class="n">people</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+<span class="linenos"> 7</span><span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">people</span><span class="p">:</span>
+<span class="linenos"> 8</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">person</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">person</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</code></pre></div>
+<p>The program above does the following:</p>
+<ul>
+<li>
+<p><strong>Line 1</strong> imports the <code>sqlite3</code> module.</p>
+</li>
+<li>
+<p><strong>Line 3</strong> creates a connection to the database file.</p>
+</li>
+<li>
+<p><strong>Line 4</strong> creates a cursor from the connection.</p>
+</li>
+<li>
+<p><strong>Line 5</strong> uses the cursor to execute a <code>SQL</code> query expressed as a string.</p>
+</li>
+<li>
+<p><strong>Line 6</strong> gets all the records returned by the <code>SQL</code> query and assigns them to the <code>people</code> <a href="https://realpython.com/python-variables/">variable</a>.</p>
+</li>
+<li>
+<p><strong>Line 7 &amp; 8</strong> iterate over the <code>people</code> list variable and print out the first and last name of each person.</p>
+</li>
+</ul>
+<p>The <code>people</code> variable from <strong>Line 6</strong> above would look like this in Python:</p>
+<div class="highlight python"><pre><span></span><code><span class="n">people</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">'Brockman'</span><span class="p">,</span> <span class="s1">'Kent'</span><span class="p">,</span> <span class="s1">'2018-08-08 21:16:01.888444'</span><span class="p">),</span> 
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">'Easter'</span><span class="p">,</span> <span class="s1">'Bunny'</span><span class="p">,</span> <span class="s1">'2018-08-08 21:16:01.889060'</span><span class="p">),</span> 
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'Farrell'</span><span class="p">,</span> <span class="s1">'Doug'</span><span class="p">,</span> <span class="s1">'2018-08-08 21:16:01.886834'</span><span class="p">)</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>The output of the program above looks like this:</p>
+<div class="highlight sh"><pre><span></span><code><span class="go">Kent Brockman</span>
+<span class="go">Bunny Easter</span>
+<span class="go">Doug Farrell</span>
+</code></pre></div>
+<p>In the above program, you have to know that a person’s first name is at index <code>2</code>, and a person’s last name is at index <code>1</code>. Worse, the internal structure of <code>person</code> must also be known whenever you pass the iteration variable <code>person</code> as a parameter to a function or method. </p>
+<p>It would be much better if what you got back for <code>person</code> was a Python object, where each of the fields is an attribute of the object. This is one of the things SQLAlchemy does.</p>
+<div><div class="rounded border border-light" style="display:block;position:relative;"><div style="display:block;width:100%;padding-top:12.5%;"></div><div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/33026732667/?c=67692636049&amp;p=58946116052&amp;r=62157" rel="nofollow" target="_blank"><img src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/71a0ec7e1d4331f7a0a4e1b7cfbaef42" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div></div><a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i aria-hidden="true" class="fa fa-info-circle"> </i> Remove ads</a></div><section class="section3" id="little-bobby-tables"><h3>Little Bobby Tables<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#little-bobby-tables" title="Permanent link"></a></h3>
+<p>In the above program, the SQL statement is a simple string passed directly to the database to execute. In this case, that’s not a problem because the SQL is a string literal completely under the control of the program. However, the use case for your REST API will take user input from the web application and use it to create SQL queries. This can open your application to attack. </p>
+<p>You’ll recall from Part 1 that the REST API to get a single <code>person</code> from the <code>PEOPLE</code> data looked like this:</p>
+<div class="highlight"><pre><span></span><code>GET /api/people/{lname}
+</code></pre></div>
+<p>This means your API is expecting a variable, <code>lname</code>, in the URL endpoint path, which it uses to find a single <code>person</code>. Modifying the Python SQLite code from above to do this would look something like this:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="n">lname</span> <span class="o">=</span> <span class="s1">'Farrell'</span>
+<span class="linenos"> 2</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">'SELECT * FROM person WHERE lname = </span><span class="se">\'</span><span class="si">{}</span><span class="se">\'</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lname</span><span class="p">))</span>
+</code></pre></div>
+<p>The above code snippet does the following:</p>
+<ul>
+<li>
+<p><strong>Line 1</strong> sets the <code>lname</code> variable to <code>'Farrell'</code>. This would come from the REST API URL endpoint path.</p>
+</li>
+<li>
+<p><strong>Line 2</strong> uses Python string formatting to create a SQL string and execute it.</p>
+</li>
+</ul>
+<p>To keep things simple, the above code sets the <code>lname</code> variable to a constant, but really it would come from the API URL endpoint path and could be anything supplied by the user. The SQL generated by the string formatting looks like this:</p>
+<div class="highlight sql"><pre><span></span><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">person</span> <span class="k">WHERE</span> <span class="n">lname</span> <span class="o">=</span> <span class="s1">'Farrell'</span>
+</code></pre></div>
+<p>When this SQL is executed by the database, it searches the <code>person</code> table for a record where the last name is equal to <code>'Farrell'</code>. This is what’s intended, but any program that accepts user input is also open to malicious users. In the program above, where the <code>lname</code> variable is set by user-supplied input, this opens your program to what’s called an <a href="https://realpython.com/prevent-python-sql-injection/">SQL injection attack</a>. This is what’s affectionately known as <a href="https://xkcd.com/327/">Little Bobby Tables</a>:</p>
+<figure><a href="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/xkcd-327-bobby-tables.webp" target="_blank"><img loading="lazy" class="img-fluid " src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/xkcd-327-bobby-tables.webp" width="666" height="205" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/xkcd-327-bobby-tables.3f89e3f5f263.png&amp;w=166&amp;sig=795dd58dca23757860387f326987783101192daa 166w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/xkcd-327-bobby-tables.3f89e3f5f263.png&amp;w=333&amp;sig=4d3e3ffc5cf3158ad477bd8fcf7ab6fc89565372 333w, https://files.realpython.com/media/xkcd-327-bobby-tables.3f89e3f5f263.png 666w" sizes="75vw" alt="XKCD Comic #327: Exploits of a Mom" data-asset="802"></a><figcaption class="figure-caption text-center">Image: <a href="https://xkcd.com/327/" target="_blank">xkcd.com</a></figcaption></figure>
+<p>For example, imagine a malicious user called your REST API in this way:</p>
+<div class="highlight"><pre><span></span><code>GET /api/people/Farrell');DROP TABLE person;
+</code></pre></div>
+<p>The REST API request above sets the <code>lname</code> variable to <code>'Farrell');DROP TABLE person;'</code>, which in the code above would generate this SQL statement:</p>
+<div class="highlight sql"><pre><span></span><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">person</span> <span class="k">WHERE</span> <span class="n">lname</span> <span class="o">=</span> <span class="s1">'Farrell'</span><span class="p">);</span><span class="k">DROP</span> <span class="k">TABLE</span> <span class="n">person</span><span class="p">;</span>
+</code></pre></div>
+<p>The above SQL statement is valid, and when executed by the database it will find one record where <code>lname</code> matches <code>'Farrell'</code>. Then, it will find the SQL statement delimiter character <code>;</code> and will go right ahead and drop the entire table. This would essentially wreck your application.</p>
+<p>You can protect your program by sanitizing all data you get from users of your application. Sanitizing data in this context means having your program examine the user-supplied data and making sure it doesn’t contain anything dangerous to the program. This can be tricky to do right and would have to be done everywhere user data interacts with the database.</p>
+<p>There’s another way that’s much easier: use SQLAlchemy. It will sanitize user data for you before creating SQL statements. It’s another big advantage and reason to use SQLAlchemy when working with databases.</p>
+</section><section class="section3" id="modeling-data-with-sqlalchemy"><h3>Modeling Data With SQLAlchemy<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#modeling-data-with-sqlalchemy" title="Permanent link"></a></h3>
+<p>SQLAlchemy is a big project and provides a lot of functionality to work with databases using Python. One of the things it provides is an ORM, or Object Relational Mapper, and this is what you’re going to use to create and work with the <code>person</code> database table. This allows you to map a row of fields from the database table to a Python object.</p>
+<p>Object Oriented Programming allows you to connect data together with behavior, the functions that operate on that data. By creating SQLAlchemy classes, you’re able to connect the fields from the database table rows to behavior, allowing you to interact with the data. Here’s the SQLAlchemy class definition for the data in the <code>person</code> database table:</p>
+<div class="highlight python"><pre><span></span><code><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">'person'</span>
+    <span class="n">person_id</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> 
+                          <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">lname</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">)</span>
+    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">DateTime</span><span class="p">,</span> 
+                          <span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">,</span> 
+                          <span class="n">onupdate</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">)</span>
+</code></pre></div>
+<p>The class <code>Person</code> inherits from <code>db.Model</code>, which you’ll get to when you start building the program code. For now, it means you’re inheriting from a base class called <code>Model</code>, providing attributes and functionality common to all classes derived from it.</p>
+<p>The rest of the definitions are class-level attributes defined as follows:</p>
+<ul>
+<li>
+<p><strong><code>__tablename__ = 'person'</code></strong> connects the class definition to the <code>person</code> database table.</p>
+</li>
+<li>
+<p><strong><code>person_id = db.Column(db.Integer, primary_key=True)</code></strong> creates a database column containing an integer acting as the primary key for the table. This also tells the database that <code>person_id</code> will be an <a href="https://www.sqlite.org/faq.html">autoincrementing Integer</a> value.</p>
+</li>
+<li>
+<p><strong><code>lname = db.Column(db.String)</code></strong> creates the last name field, a database column containing a string value.</p>
+</li>
+<li>
+<p><strong><code>fname = db.Column(db.String)</code></strong> creates the first name field, a database column containing a string value.</p>
+</li>
+<li>
+<p><strong><code>timestamp = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)</code></strong> creates a timestamp field, a database column containing a date/time value. The <code>default=datetime.utcnow</code> parameter defaults the timestamp value to the current <code>utcnow</code> value when a record is created. The <code>onupdate=datetime.utcnow</code> parameter updates the timestamp with the current <code>utcnow</code> value when the record is updated.</p>
+</li>
+</ul>
+<div class="alert alert-primary" role="alert">
+<p><strong>Note: UTC Timestamps</strong></p>
+<p>You might be wondering why the timestamp in the above class defaults to and is updated by the <code>datetime.utcnow()</code> method, which returns a <a href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time">UTC</a>, or Coordinated Universal Time. This is a way of standardizing your timestamp’s source.</p>
+<p>The source, or zero time, is a line running north and south from the Earth’s north to south pole through the UK. This is the zero time zone from which all other time zones are offset. By using this as the zero time source, your timestamps are offsets from this standard reference point.</p>
+<p>Should your application be accessed from different time zones, you have a way to perform date/time calculations. All you need is a UTC timestamp and the destination time zone. </p>
+<p>If you were to use local time zones as your timestamp source, then you couldn’t perform date/time calculations without information about the local time zones offset from zero time. Without the timestamp source information, you couldn’t do any date/time comparisons or math at all.</p>
+<p>Working with a timestamps based on UTC is a good standard to follow. Here’s a <a href="https://www.timeanddate.com/worldclock/timezone/utc">toolkit</a> site to work with and better understand them. </p>
+</div>
+<p>Where are you heading with this <code>Person</code> class definition? The end goal is to be able to run a query using SQLAlchemy and get back a list of instances of the <code>Person</code> class. As an example, let’s look at the previous SQL statement:</p>
+<div class="highlight sql"><pre><span></span><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">people</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">lname</span><span class="p">;</span>
+</code></pre></div>
+<p>Show the same small example program from above, but now using SQLAlchemy:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="n">Person</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="n">people</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">Person</span><span class="o">.</span><span class="n">lname</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="linenos"> 4</span><span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">people</span><span class="p">:</span>
+<span class="linenos"> 5</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">fname</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">lname</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</code></pre></div>
+<p>Ignoring line 1 for the moment, what you want is all the <code>person</code> records sorted in ascending order by the <code>lname</code> field. What you get back from the SQLAlchemy statements <code>Person.query.order_by(Person.lname).all()</code> is a list of <code>Person</code> objects for all records in the <code>person</code> database table in that order. In the above program, the <code>people</code> variable contains the list of <code>Person</code> objects.</p>
+<p>The program iterates over the <code>people</code> variable, taking each <code>person</code> in turn and printing out the first and last name of the person from the database. Notice the program doesn’t have to use indexes to get the <code>fname</code> or <code>lname</code> values: it uses the attributes defined on the <code>Person</code> object.</p>
+<p>Using SQLAlchemy allows you to think in terms of objects with behavior rather than raw <code>SQL</code>. This becomes even more beneficial when your database tables become larger and the interactions more complex.</p>
+<div><div class="rounded border border-light" style="display:block;position:relative;"><div style="display:block;width:100%;padding-top:12.5%;"></div><div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/6329231077/?c=67692636049&amp;p=58946116052&amp;r=45341" rel="nofollow" target="_blank"><img src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/a06935292d9e664600113998d124efa2" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div></div><a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i aria-hidden="true" class="fa fa-info-circle"> </i> Remove ads</a></div></section><section class="section3" id="serializingdeserializing-modeled-data"><h3>Serializing/Deserializing Modeled Data<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#serializingdeserializing-modeled-data" title="Permanent link"></a></h3>
+<p>Working with SQLAlchemy modeled data inside your programs is very convenient. It is especially convenient in programs that manipulate the data, perhaps making calculations or using it to create presentations on screen. Your application is a REST API essentially providing CRUD operations on the data, and as such it doesn’t perform much data manipulation.</p>
+<p>The REST API works with JSON data, and here you can run into an issue with the SQLAlchemy model. Because the data returned by SQLAlchemy are Python class instances, Connexion can’t serialize these class instances to JSON formatted data. Remember from Part 1 that Connexion is the tool you used to design and configure the REST API using a <a href="https://en.wikipedia.org/wiki/YAML">YAML</a> file, and connect Python methods to it.</p>
+<p>In this context, serializing means converting Python objects, which can contain other Python objects and complex data types, into simpler data structures that can be parsed into <a href="https://www.w3schools.com/js/js_json_datatypes.asp">JSON datatypes</a>, which are listed here:</p>
+<ul>
+<li><strong><code>string</code>:</strong> a string type</li>
+<li><strong><code>number</code>:</strong> numbers supported by Python (integers, floats, longs)</li>
+<li><strong><code>object</code>:</strong> a JSON object, which is roughly equivalent to a Python dictionary</li>
+<li><strong><code>array</code>:</strong> roughly equivalent to a Python List</li>
+<li><strong><code>boolean</code>:</strong> represented in JSON as <code>true</code> or <code>false</code>, but in Python as <code>True</code> or <code>False</code></li>
+<li><strong><code>null</code>:</strong> essentially a <a href="https://realpython.com/null-in-python/"><code>None</code> in Python</a></li>
+</ul>
+<p>As an example, your <code>Person</code> class contains a timestamp, which is a Python <code>DateTime</code>. There is no date/time definition in JSON, so the timestamp has to be converted to a string in order to exist in a JSON structure.</p>
+<p>Your <code>Person</code> class is simple enough so getting the data attributes from it and creating a dictionary manually to return from our REST URL endpoints wouldn’t be very hard. In a more complex application with many larger SQLAlchemy models, this wouldn’t be the case. A better solution is to use a module called <a href="https://marshmallow.readthedocs.io/en/3.0/">Marshmallow</a> to do the work for you.</p>
+<p>Marshmallow helps you to create a <code>PersonSchema</code> class, which is like the SQLAlchemy <code>Person</code> class we created. Here however, instead of mapping database tables and field names to the class and its attributes, the <code>PersonSchema</code> class defines how the attributes of a class will be converted into JSON-friendly formats. Here’s the Marshmallow class definition for the data in our <code>person</code> table:</p>
+<div class="highlight python"><pre><span></span><code><span class="k">class</span> <span class="nc">PersonSchema</span><span class="p">(</span><span class="n">ma</span><span class="o">.</span><span class="n">ModelSchema</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
+        <span class="n">sqla_session</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span>
+</code></pre></div>
+<p>The class <code>PersonSchema</code> inherits from <code>ma.ModelSchema</code>, which you’ll get to when you start building the program code. For now, this means <code>PersonSchema</code> is inheriting from a Marshmallow base class called <code>ModelSchema</code>, providing attributes and functionality common to all classes derived from it.</p>
+<p>The rest of the definition is as follows:</p>
+<ul>
+<li>
+<p><strong><code>class Meta</code></strong> defines a class named <code>Meta</code> within your class. The <code>ModelSchema</code> class that the <code>PersonSchema</code> class inherits from looks for this internal <code>Meta</code> class and uses it to find the SQLAlchemy model <code>Person</code> and the <code>db.session</code>. This is how Marshmallow finds attributes in the <code>Person</code> class and the type of those attributes so it knows how to serialize/deserialize them.</p>
+</li>
+<li>
+<p><strong><code>model</code></strong> tells the class what SQLAlchemy model to use to serialize/deserialize data to and from.</p>
+</li>
+<li>
+<p><strong><code>db.session</code></strong> tells the class what database session to use to <a href="https://en.wikipedia.org/wiki/Type_introspection">introspect</a> and determine attribute data types.</p>
+</li>
+</ul>
+<p>Where are you heading with this class definition? You want to be able to serialize an instance of a <code>Person</code> class into JSON data, and to deserialize JSON data and create a <code>Person</code> class instances from it.</p>
+</section></section><section class="section2" id="create-the-initialized-database"><h2>Create the Initialized Database<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#create-the-initialized-database" title="Permanent link"></a></h2>
+<p>SQLAlchemy handles many of the interactions specific to particular databases and lets you focus on the data models as well as how to use them. </p>
+<p>Now that you’re actually going to create a database, as mentioned before, you’ll use <a href="https://www.sqlite.org/index.html">SQLite</a>. You’re doing this for a couple of reasons. It comes with Python and doesn’t have to be installed as a separate module. It saves all of the database information in a single file and is therefore easy to set up and use. </p>
+<p>Installing a separate database server like <a href="https://www.mysql.com/">MySQL</a> or <a href="https://www.postgresql.org/">PostgreSQL</a> would work fine but would require installing those systems and getting them up and running, which is beyond the scope of this article. </p>
+<p>Because SQLAlchemy handles the database, in many ways it really doesn’t matter what the underlying database is.</p>
+<p>You’re going to create a new utility program called <code>build_database.py</code> to create and initialize the SQLite <code>people.db</code> database file containing your <code>person</code> database table. Along the way, you’ll create two Python modules, <code>config.py</code> and <code>models.py</code>, which will be used by <code>build_database.py</code> and the modified <code>server.py</code> from Part 1.</p>
+<p>Here’s where you can find the <a href="https://github.com/realpython/materials/tree/master/flask-connexion-rest/version_4">source code</a> for the modules you’re about to create, which are introduced here:</p>
+<ul>
+<li>
+<p><strong><code>config.py</code></strong> gets the necessary modules imported into the program and configured. This includes Flask, Connexion, SQLAlchemy, and Marshmallow. Because it will be used by both <code>build_database.py</code> and <code>server.py</code>, some parts of the configuation will only apply to the <code>server.py</code> application.</p>
+</li>
+<li>
+<p><strong><code>models.py</code></strong> is the module where you’ll create the <code>Person</code> SQLAlchemy and <code>PersonSchema</code> Marshmallow class definitions described above. This module is dependent on <code>config.py</code> for some of the objects created and configured there.</p>
+</li>
+</ul>
+<div><div class="rounded border border-light" style="display:block;position:relative;"><div style="display:block;width:100%;padding-top:12.5%;"></div><div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/15786455390/?c=67692636049&amp;p=58946116052&amp;r=59261" rel="nofollow" target="_blank"><img src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/62d44bba79d7d7243216616a07654fce" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div></div><a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i aria-hidden="true" class="fa fa-info-circle"> </i> Remove ads</a></div><section class="section3" id="config-module"><h3>Config Module<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#config-module" title="Permanent link"></a></h3>
+<p>The <code>config.py</code> module, as the name implies, is where all of the configuration information is created and initialized. We’re going to use this module for both our <code>build_database.py</code> program file and the soon to be updated <code>server.py</code> file from the Part 1 article. This means we’re going to configure Flask, Connexion, SQLAlchemy, and Marshmallow here. </p>
+<p>Even though the <code>build_database.py</code> program doesn’t make use of Flask, Connexion, or Marshmallow, it does use SQLAlchemy to create our connection to the SQLite database. Here is the code for the <a href="https://github.com/realpython/materials/blob/master/flask-connexion-rest-part-2/version_1/config.py"><code>config.py</code></a> module:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 2</span><span class="kn">import</span> <span class="nn">connexion</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">flask_sqlalchemy</span> <span class="kn">import</span> <span class="n">SQLAlchemy</span>
+<span class="linenos"> 4</span><span class="kn">from</span> <span class="nn">flask_marshmallow</span> <span class="kn">import</span> <span class="n">Marshmallow</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="n">basedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="c1"># Create the Connexion application instance</span>
+<span class="linenos"> 9</span><span class="n">connex_app</span> <span class="o">=</span> <span class="n">connexion</span><span class="o">.</span><span class="n">App</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">specification_dir</span><span class="o">=</span><span class="n">basedir</span><span class="p">)</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="c1"># Get the underlying Flask app instance</span>
+<span class="linenos">12</span><span class="n">app</span> <span class="o">=</span> <span class="n">connex_app</span><span class="o">.</span><span class="n">app</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span><span class="c1"># Configure the SQLAlchemy part of the app instance</span>
+<span class="linenos">15</span><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'SQLALCHEMY_ECHO'</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="linenos">16</span><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'SQLALCHEMY_DATABASE_URI'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'sqlite:////'</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basedir</span><span class="p">,</span> <span class="s1">'people.db'</span><span class="p">)</span>
+<span class="linenos">17</span><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'SQLALCHEMY_TRACK_MODIFICATIONS'</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="c1"># Create the SQLAlchemy db instance</span>
+<span class="linenos">20</span><span class="n">db</span> <span class="o">=</span> <span class="n">SQLAlchemy</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<span class="linenos">21</span>
+<span class="linenos">22</span><span class="c1"># Initialize Marshmallow</span>
+<span class="linenos">23</span><span class="n">ma</span> <span class="o">=</span> <span class="n">Marshmallow</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</code></pre></div>
+<p>Here’s what the above code is doing:</p>
+<ul>
+<li>
+<p><strong>Lines 2 – 4</strong> import Connexion as you did in the <code>server.py</code> program from Part 1. It also imports <code>SQLAlchemy</code> from the <code>flask_sqlalchemy</code> module. This gives your program database access. Lastly, it imports <code>Marshmallow</code> from the <code>flask_marshamllow</code> module.</p>
+</li>
+<li>
+<p><strong>Line 6</strong> creates the variable <code>basedir</code> pointing to the directory the program is running in.</p>
+</li>
+<li>
+<p><strong>Line 9</strong> uses the <code>basedir</code> variable to create the Connexion app instance and give it the path to the <code>swagger.yml</code> file.</p>
+</li>
+<li>
+<p><strong>Line 12</strong> creates a variable <code>app</code>, which is the Flask instance initialized by Connexion.</p>
+</li>
+<li>
+<p><strong>Lines 15</strong> uses the <code>app</code> variable to configure values used by SQLAlchemy. First it sets <code>SQLALCHEMY_ECHO</code> to <code>True</code>. This causes SQLAlchemy to echo SQL statements it executes to the console. This is very useful to debug problems when building database programs. Set this to <code>False</code> for production environments.</p>
+</li>
+<li>
+<p><strong>Line 16</strong> sets <code>SQLALCHEMY_DATABASE_URI</code> to <code>sqlite:////' + os.path.join(basedir, 'people.db')</code>. This tells SQLAlchemy to use SQLite as the database, and a file named <code>people.db</code> in the current directory as the database file. Different database engines, like <a href="https://realpython.com/python-mysql/">MySQL</a> and PostgreSQL, will have different <a href="http://flask-sqlalchemy.pocoo.org/2.3/config/"><code>SQLALCHEMY_DATABASE_URI</code></a> strings to configure them.</p>
+</li>
+<li>
+<p><strong>Line 17</strong> sets <code>SQLALCHEMY_TRACK_MODIFICATIONS</code> to <code>False</code>, turning off the SQLAlchemy event system, which is on by default. The event system generates events useful in event-driven programs but adds significant overhead. Since you’re not creating an event-driven program, turn this feature off.</p>
+</li>
+<li>
+<p><strong>Line 19</strong> creates the <code>db</code> variable by calling <code>SQLAlchemy(app)</code>. This initializes SQLAlchemy by passing the <code>app</code> configuration information just set. The <code>db</code> variable is what’s imported into the <code>build_database.py</code> program to give it access to SQLAlchemy and the database. It will serve the same purpose in the <code>server.py</code> program and <code>people.py</code> module.</p>
+</li>
+<li>
+<p><strong>Line 23</strong> creates the <code>ma</code> variable by calling <code>Marshmallow(app)</code>. This initializes Marshmallow and allows it to introspect the SQLAlchemy components attached to the app. This is why Marshmallow is initialized after SQLAlchemy.</p>
+</li>
+</ul>
+</section><section class="section3" id="models-module"><h3>Models Module<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#models-module" title="Permanent link"></a></h3>
+<p>The <a href="https://github.com/realpython/materials/blob/master/flask-connexion-rest-part-2/version_1/models.py"><code>models.py</code></a> module is created to provide the <code>Person</code> and <code>PersonSchema</code> classes exactly as described in the sections above about modeling and serializing the data. Here is the code for that module:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">db</span><span class="p">,</span> <span class="n">ma</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="linenos"> 5</span>    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">'person'</span>
+<span class="linenos"> 6</span>    <span class="n">person_id</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos"> 7</span>    <span class="n">lname</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">32</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos"> 8</span>    <span class="n">fname</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span>
+<span class="linenos"> 9</span>    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">DateTime</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">,</span> <span class="n">onupdate</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">)</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="k">class</span> <span class="nc">PersonSchema</span><span class="p">(</span><span class="n">ma</span><span class="o">.</span><span class="n">ModelSchema</span><span class="p">):</span>
+<span class="linenos">12</span>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="linenos">13</span>        <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
+<span class="linenos">14</span>        <span class="n">sqla_session</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">session</span>    
+</code></pre></div>
+<p>Here’s what the above code is doing:</p>
+<ul>
+<li>
+<p><strong>Line 1</strong> imports the <code>datetime</code> object from <a href="https://realpython.com/python-datetime/">the <code>datetime</code> module that comes with Python</a>. This gives you a way to create a timestamp in the <code>Person</code> class.</p>
+</li>
+<li>
+<p><strong>Line 2</strong> imports the <code>db</code> and <code>ma</code> instance variables defined in the <code>config.py</code> module. This gives the module access to SQLAlchemy attributes and methods attached to the <code>db</code> variable, and the Marshmallow attributes and methods attached to the <code>ma</code> variable.</p>
+</li>
+<li>
+<p><strong>Lines 4 – 9</strong> define the <code>Person</code> class as discussed in the data modeling section above, but now you know where the <code>db.Model</code> that the class inherits from originates. This gives the <code>Person</code> class SQLAlchemy features, like a connection to the database and access to its tables.</p>
+</li>
+<li>
+<p><strong>Lines 11 – 14</strong> define the <code>PersonSchema</code> class as was discussed in the data serialzation section above. This class inherits from <code>ma.ModelSchema</code> and gives the <code>PersonSchema</code> class Marshmallow features, like introspecting the <code>Person</code> class to help serialize/deserialize instances of that class.</p>
+</li>
+</ul>
+</section><section class="section3" id="creating-the-database"><h3>Creating the Database<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#creating-the-database" title="Permanent link"></a></h3>
+<p>You’ve seen how database tables can be mapped to SQLAlchemy classes. Now use what you’ve learned to create the database and populate it with data. You’re going to build a small utility program to create and build the database with the <code>People</code> data. Here’s the <a href="https://github.com/realpython/materials/blob/master/flask-connexion-rest-part-2/version_1/build_database.py"><code>build_database.py</code></a> program:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">db</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="n">Person</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="c1"># Data to initialize database with</span>
+<span class="linenos"> 6</span><span class="n">PEOPLE</span> <span class="o">=</span> <span class="p">[</span>
+<span class="linenos"> 7</span>    <span class="p">{</span><span class="s1">'fname'</span><span class="p">:</span> <span class="s1">'Doug'</span><span class="p">,</span> <span class="s1">'lname'</span><span class="p">:</span> <span class="s1">'Farrell'</span><span class="p">},</span>
+<span class="linenos"> 8</span>    <span class="p">{</span><span class="s1">'fname'</span><span class="p">:</span> <span class="s1">'Kent'</span><span class="p">,</span> <span class="s1">'lname'</span><span class="p">:</span> <span class="s1">'Brockman'</span><span class="p">},</span>
+<span class="linenos"> 9</span>    <span class="p">{</span><span class="s1">'fname'</span><span class="p">:</span> <span class="s1">'Bunny'</span><span class="p">,</span><span class="s1">'lname'</span><span class="p">:</span> <span class="s1">'Easter'</span><span class="p">}</span>
+<span class="linenos">10</span><span class="p">]</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="c1"># Delete database file if it exists currently</span>
+<span class="linenos">13</span><span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">'people.db'</span><span class="p">):</span>
+<span class="linenos">14</span>    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">'people.db'</span><span class="p">)</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="c1"># Create the database</span>
+<span class="linenos">17</span><span class="n">db</span><span class="o">.</span><span class="n">create_all</span><span class="p">()</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="c1"># Iterate over the PEOPLE structure and populate the database</span>
+<span class="linenos">20</span><span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">PEOPLE</span><span class="p">:</span>
+<span class="linenos">21</span>    <span class="n">p</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">lname</span><span class="o">=</span><span class="n">person</span><span class="p">[</span><span class="s1">'lname'</span><span class="p">],</span> <span class="n">fname</span><span class="o">=</span><span class="n">person</span><span class="p">[</span><span class="s1">'fname'</span><span class="p">])</span>
+<span class="linenos">22</span>    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="linenos">23</span>
+<span class="linenos">24</span><span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</code></pre></div>
+<p>Here’s what the above code is doing:</p>
+<ul>
+<li>
+<p><strong>Line 2</strong> imports the <code>db</code> instance from the <code>config.py</code> module.</p>
+</li>
+<li>
+<p><strong>Line 3</strong> imports the <code>Person</code> class definition from the <code>models.py</code> module.</p>
+</li>
+<li>
+<p><strong>Lines 6 – 10</strong> create the <code>PEOPLE</code> data structure, which is a list of dictionaries containing your data. The structure has been condensed to save presentation space.</p>
+</li>
+<li>
+<p><strong>Lines 13 &amp; 14</strong> perform some simple housekeeping to delete the <code>people.db</code> file, if it exists. This file is where the SQLite database is maintained. If you ever have to re-initialize the database to get a clean start, this makes sure you’re starting from scratch when you build the database.</p>
+</li>
+<li>
+<p><strong>Line 17</strong> creates the database with the <code>db.create_all()</code> call. This creates the database by using the <code>db</code> instance imported from the <code>config</code> module. The <code>db</code> instance is our connection to the database.</p>
+</li>
+<li>
+<p><strong>Lines 20 – 22</strong> iterate over the <code>PEOPLE</code> list and use the dictionaries within to instantiate a <code>Person</code> class. After it is instantiated, you call the <code>db.session.add(p)</code> function. This uses the database connection instance <code>db</code> to access the <code>session</code> object. The session is what manages the database actions, which are recorded in the session. In this case, you are executing the <code>add(p)</code> method to add the new <code>Person</code> instance to the <code>session</code> object.</p>
+</li>
+<li>
+<p><strong>Line 24</strong> calls <code>db.session.commit()</code> to actually save all the person objects created to the database.</p>
+</li>
+</ul>
+<div class="alert alert-primary" role="alert">
+<p><strong>Note:</strong> At Line 22, no data has been added to the database. Everything is being saved within the <code>session</code> object. Only when you execute the <code>db.session.commit()</code> call at Line 24 does the session interact with the database and commit the actions to it. </p>
+</div>
+<p>In SQLAlchemy, the <code>session</code> is an important object. It acts as the conduit between the database and the SQLAlchemy Python objects created in a program. The <code>session</code> helps maintain the consistency between data in the program and the same data as it exists in the database. It saves all database actions and will update the underlying database accordingly by both explicit and implicit actions taken by the program.</p>
+<p>Now you’re ready to run the <code>build_database.py</code> program to create and initialize the new database. You do so with the following command, with your Python virtual environment active:</p>
+<div class="highlight sh"><pre><span></span><code><span class="go">python build_database.py</span>
+</code></pre></div>
+<p>When the program runs, it will print SQLAlchemy log messages to the console. These are the result of setting <code>SQLALCHEMY_ECHO</code> to <code>True</code> in the <code>config.py</code> file. Much of what’s being logged by SQLAlchemy is the <code>SQL</code> commands it’s generating to create and build the <code>people.db</code> SQLite database file. Here’s an example of what’s printed out when the program is run:</p>
+<div class="highlight sh"><pre><span></span><code><span class="go">2018-09-11 22:20:29,951 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS VARCHAR(60)) AS anon_1</span>
+<span class="go">2018-09-11 22:20:29,951 INFO sqlalchemy.engine.base.Engine ()</span>
+<span class="go">2018-09-11 22:20:29,952 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS VARCHAR(60)) AS anon_1</span>
+<span class="go">2018-09-11 22:20:29,952 INFO sqlalchemy.engine.base.Engine ()</span>
+<span class="go">2018-09-11 22:20:29,956 INFO sqlalchemy.engine.base.Engine PRAGMA table_info("person")</span>
+<span class="go">2018-09-11 22:20:29,956 INFO sqlalchemy.engine.base.Engine ()</span>
+<span class="go">2018-09-11 22:20:29,959 INFO sqlalchemy.engine.base.Engine </span>
+<span class="go">CREATE TABLE person (</span>
+<span class="go">    person_id INTEGER NOT NULL, </span>
+<span class="go">    lname VARCHAR, </span>
+<span class="go">    fname VARCHAR, </span>
+<span class="go">    timestamp DATETIME, </span>
+<span class="go">    PRIMARY KEY (person_id)</span>
+<span class="go">)</span>
+<span class="go">2018-09-11 22:20:29,959 INFO sqlalchemy.engine.base.Engine ()</span>
+<span class="go">2018-09-11 22:20:29,975 INFO sqlalchemy.engine.base.Engine COMMIT</span>
+<span class="go">2018-09-11 22:20:29,980 INFO sqlalchemy.engine.base.Engine BEGIN (implicit)</span>
+<span class="go">2018-09-11 22:20:29,983 INFO sqlalchemy.engine.base.Engine INSERT INTO person (lname, fname, timestamp) VALUES (?, ?, ?)</span>
+<span class="go">2018-09-11 22:20:29,983 INFO sqlalchemy.engine.base.Engine ('Farrell', 'Doug', '2018-09-12 02:20:29.983143')</span>
+<span class="go">2018-09-11 22:20:29,984 INFO sqlalchemy.engine.base.Engine INSERT INTO person (lname, fname, timestamp) VALUES (?, ?, ?)</span>
+<span class="go">2018-09-11 22:20:29,985 INFO sqlalchemy.engine.base.Engine ('Brockman', 'Kent', '2018-09-12 02:20:29.984821')</span>
+<span class="go">2018-09-11 22:20:29,985 INFO sqlalchemy.engine.base.Engine INSERT INTO person (lname, fname, timestamp) VALUES (?, ?, ?)</span>
+<span class="go">2018-09-11 22:20:29,985 INFO sqlalchemy.engine.base.Engine ('Easter', 'Bunny', '2018-09-12 02:20:29.985462')</span>
+<span class="go">2018-09-11 22:20:29,986 INFO sqlalchemy.engine.base.Engine COMMIT</span>
+</code></pre></div>
+<div><div class="rounded border border-light" style="display:block;position:relative;"><div style="display:block;width:100%;padding-top:12.5%;"></div><div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/39779255722/?c=67692636049&amp;p=58946116052&amp;r=68312" rel="nofollow" target="_blank"><img src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/220efdb45992bec1eda48c64df3fd477" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div></div><a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i aria-hidden="true" class="fa fa-info-circle"> </i> Remove ads</a></div></section></section><section class="section2" id="using-the-database"><h2>Using the Database<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#using-the-database" title="Permanent link"></a></h2>
+<p>Once the database has been created, you can modify the existing code from Part 1 to make use of it. All of the modifications necessary are due to creating the <code>person_id</code> primary key value in our database as the unique identifier rather than the <code>lname</code> value.</p>
+<section class="section3" id="update-the-rest-api"><h3>Update the REST API<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-rest-api" title="Permanent link"></a></h3>
+<p>None of the changes are very dramatic, and you’ll start by re-defining the <a href="https://realpython.com/search?q=rest">REST</a> API. The list below shows the API definition from Part 1 but is updated to use the <code>person_id</code> variable in the URL path:</p>
+<div class="table-responsive">
+<table class="table table-hover">
+<thead>
+<tr>
+<th>Action</th>
+<th>HTTP Verb</th>
+<th>URL Path</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create</td>
+<td><code>POST</code></td>
+<td><code>/api/people</code></td>
+<td>Defines a unique URL to create a new person</td>
+</tr>
+<tr>
+<td>Read</td>
+<td><code>GET</code></td>
+<td><code>/api/people</code></td>
+<td>Defines a unique URL to read a collection of people</td>
+</tr>
+<tr>
+<td>Read</td>
+<td><code>GET</code></td>
+<td><code>/api/people/{person_id}</code></td>
+<td>Defines a unique URL to read a particular person by <code>person_id</code></td>
+</tr>
+<tr>
+<td>Update</td>
+<td><code>PUT</code></td>
+<td><code>/api/people/{person_id}</code></td>
+<td>Defines a unique URL to update an existing person by <code>person_id</code></td>
+</tr>
+<tr>
+<td>Delete</td>
+<td><code>DELETE</code></td>
+<td><code>/api/orders/{person_id}</code></td>
+<td>Defines a unique URL to delete an existing person by <code>person_id</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Where the URL definitions required an <code>lname</code> value, they now require the <code>person_id</code> (primary key) for the person record in the <code>people</code> table. This allows you to remove the code in the previous app that artificially restricted users from editing a person’s last name.</p>
+<p>In order for you to implement these changes, the <code>swagger.yml</code> file from Part 1 will have to be edited. For the most part, any <code>lname</code> parameter value will be changed to <code>person_id</code>, and <code>person_id</code> will be added to the <code>POST</code> and <code>PUT</code> responses. You can check out the updated <a href="https://github.com/realpython/materials/blob/master/flask-connexion-rest-part-2/version_1/swagger.yml"><code>swagger.yml</code></a> file.</p>
+</section><section class="section3" id="update-the-rest-api-handlers"><h3>Update the REST API Handlers<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-rest-api-handlers" title="Permanent link"></a></h3>
+<p>With the <code>swagger.yml</code> file updated to support the use of the <code>person_id</code> identifier, you’ll also need to update the handlers in the <code>people.py</code> file to support these changes. In the same way that the <code>swagger.yml</code> file was updated, you need to change the <code>people.py</code> file to use the <code>person_id</code> value rather than <code>lname</code>. </p>
+<p>Here’s part of the updated <code>person.py</code> module showing the handler for the REST URL endpoint <code>GET /api/people</code>:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="linenos"> 2</span>    <span class="n">make_response</span><span class="p">,</span>
+<span class="linenos"> 3</span>    <span class="n">abort</span><span class="p">,</span>
+<span class="linenos"> 4</span><span class="p">)</span>
+<span class="linenos"> 5</span><span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">db</span>
+<span class="linenos"> 6</span><span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="linenos"> 7</span>    <span class="n">Person</span><span class="p">,</span>
+<span class="linenos"> 8</span>    <span class="n">PersonSchema</span><span class="p">,</span>
+<span class="linenos"> 9</span><span class="p">)</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="k">def</span> <span class="nf">read_all</span><span class="p">():</span>
+<span class="linenos">12</span>    <span class="sd">"""</span>
+<span class="linenos">13</span><span class="sd">    This function responds to a request for /api/people</span>
+<span class="linenos">14</span><span class="sd">    with the complete lists of people</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="sd">    :return:        json string of list of people</span>
+<span class="linenos">17</span><span class="sd">    """</span>
+<span class="linenos">18</span>    <span class="c1"># Create the list of people from our data</span>
+<span class="linenos">19</span>    <span class="n">people</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">query</span> \
+<span class="linenos">20</span>        <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">Person</span><span class="o">.</span><span class="n">lname</span><span class="p">)</span> \
+<span class="linenos">21</span>        <span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span>    <span class="c1"># Serialize the data for the response</span>
+<span class="linenos">24</span>    <span class="n">person_schema</span> <span class="o">=</span> <span class="n">PersonSchema</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">25</span>    <span class="k">return</span> <span class="n">person_schema</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">people</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+</code></pre></div>
+<p>Here’s what the above code is doing:</p>
+<ul>
+<li>
+<p><strong>Lines 1 – 9</strong> import some Flask modules to create the REST API responses, as well as importing the <code>db</code> instance from the <code>config.py</code> module. In addition, it imports the SQLAlchemy <code>Person</code> and Marshmallow <code>PersonSchema</code> classes to access the <code>person</code> database table and serialize the results.</p>
+</li>
+<li>
+<p><strong>Line 11</strong> starts the definition of <code>read_all()</code> that responds to the REST API URL endpoint <code>GET /api/people</code> and returns all the records in the <code>person</code> database table sorted in ascending order by last name.</p>
+</li>
+<li>
+<p><strong>Lines 19 – 22</strong> tell SQLAlchemy to query the <code>person</code> database table for all the records, sort them in ascending order (the default sorting order), and return a list of <code>Person</code> Python objects as the variable <code>people</code>.</p>
+</li>
+<li>
+<p><strong>Line 24</strong> is where the Marshmallow <code>PersonSchema</code> class definition becomes valuable. You create an instance of the <code>PersonSchema</code>, passing it the parameter <code>many=True</code>. This tells <code>PersonSchema</code> to expect an interable to serialize, which is what the <code>people</code> variable is.</p>
+</li>
+<li>
+<p><strong>Line 25</strong> uses the <code>PersonSchema</code> instance variable (<code>person_schema</code>), calling its <code>dump()</code> method with the <code>people</code> list. The result is an object having a <code>data</code> attribute, an object containing a <code>people</code> list that can be converted to JSON. This is returned and converted by Connexion to JSON as the response to the REST API call.</p>
+</li>
+</ul>
+<div class="alert alert-primary" role="alert">
+<p><strong>Note:</strong> The <code>people</code> list variable created on Line 24 above can’t be returned directly because Connexion won’t know how to convert the <code>timestamp</code> field into JSON. Returning the list of people without processing it with Marshmallow results in a long error <a href="https://realpython.com/courses/python-traceback/">traceback</a> and finally this Exception:</p>
+<div class="highlight sh"><pre><span></span><code><span class="go">TypeError: Object of type Person is not JSON serializable</span>
+</code></pre></div>
+</div>
+<p>Here’s another part of the <code>person.py</code> module that makes a request for a single person from the <code>person</code> database. Here, <code>read_one(person_id)</code> function receives a <code>person_id</code> from the REST URL path, indicating the user is looking for a specific person. Here’s part of the updated <code>person.py</code> module showing the handler for the REST URL endpoint <code>GET /api/people/{person_id}</code>:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="k">def</span> <span class="nf">read_one</span><span class="p">(</span><span class="n">person_id</span><span class="p">):</span>
+<span class="linenos"> 2</span>    <span class="sd">"""</span>
+<span class="linenos"> 3</span><span class="sd">    This function responds to a request for /api/people/{person_id}</span>
+<span class="linenos"> 4</span><span class="sd">    with one matching person from people</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="sd">    :param person_id:   ID of person to find</span>
+<span class="linenos"> 7</span><span class="sd">    :return:            person matching ID</span>
+<span class="linenos"> 8</span><span class="sd">    """</span>
+<span class="linenos"> 9</span>    <span class="c1"># Get the person requested</span>
+<span class="linenos">10</span>    <span class="n">person</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">query</span> \
+<span class="linenos">11</span>        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Person</span><span class="o">.</span><span class="n">person_id</span> <span class="o">==</span> <span class="n">person_id</span><span class="p">)</span> \
+<span class="linenos">12</span>        <span class="o">.</span><span class="n">one_or_none</span><span class="p">()</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span>    <span class="c1"># Did we find a person?</span>
+<span class="linenos">15</span>    <span class="k">if</span> <span class="n">person</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<span class="linenos">16</span>
+<span class="linenos">17</span>        <span class="c1"># Serialize the data for the response</span>
+<span class="linenos">18</span>        <span class="n">person_schema</span> <span class="o">=</span> <span class="n">PersonSchema</span><span class="p">()</span>
+<span class="linenos">19</span>        <span class="k">return</span> <span class="n">person_schema</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">person</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span>    <span class="c1"># Otherwise, nope, didn't find that person</span>
+<span class="linenos">22</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos">23</span>        <span class="n">abort</span><span class="p">(</span><span class="mi">404</span><span class="p">,</span> <span class="s1">'Person not found for Id: </span><span class="si">{person_id}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">))</span>
+</code></pre></div>
+<p>Here’s what the above code is doing:</p>
+<ul>
+<li>
+<p><strong>Lines 10 – 12</strong> use the <code>person_id</code> parameter in a SQLAlchemy query using the <code>filter</code> method of the query object to search for a person with a <code>person_id</code> attribute matching the passed-in <code>person_id</code>. Rather than using the <code>all()</code> query method, use the <a href="http://docs.sqlalchemy.org/en/latest/orm/query.html"><code>one_or_none()</code></a> method to get one person, or return <code>None</code> if no match is found.</p>
+</li>
+<li>
+<p><strong>Line 15</strong> determines whether a <code>person</code> was found or not.</p>
+</li>
+<li>
+<p><strong>Line 17</strong> shows that, if <code>person</code> was not <code>None</code> (a matching <code>person</code> was found), then serializing the data is a little different. You don’t pass the <code>many=True</code> parameter to the creation of the <code>PersonSchema()</code> instance. Instead, you pass <code>many=False</code> because only a single object is passed in to serialize.</p>
+</li>
+<li>
+<p><strong>Line 18</strong> is where the <code>dump</code> method of <code>person_schema</code> is called, and the <code>data</code> attribute of the resulting object is returned.</p>
+</li>
+<li>
+<p><strong>Line 23</strong> shows that, if <code>person</code> was <code>None</code> (a matching person wasn’t found), then the Flask <code>abort()</code> method is called to return an error.</p>
+</li>
+</ul>
+<p>Another modification to <code>person.py</code> is creating a new person in the database. This gives you an opportunity to use the Marshmallow <code>PersonSchema</code> to deserialize a JSON structure sent with the HTTP request to create a SQLAlchemy <code>Person</code> object. Here’s part of the updated <code>person.py</code> module showing the handler for the REST URL endpoint <code>POST /api/people</code>:</p>
+<div class="highlight python"><pre><span></span><code><span class="linenos"> 1</span><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">person</span><span class="p">):</span>
+<span class="linenos"> 2</span>    <span class="sd">"""</span>
+<span class="linenos"> 3</span><span class="sd">    This function creates a new person in the people structure</span>
+<span class="linenos"> 4</span><span class="sd">    based on the passed-in person data</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="sd">    :param person:  person to create in people structure</span>
+<span class="linenos"> 7</span><span class="sd">    :return:        201 on success, 406 on person exists</span>
+<span class="linenos"> 8</span><span class="sd">    """</span>
+<span class="linenos"> 9</span>    <span class="n">fname</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'fname'</span><span class="p">)</span>
+<span class="linenos">10</span>    <span class="n">lname</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'lname'</span><span class="p">)</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>    <span class="n">existing_person</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">query</span> \
+<span class="linenos">13</span>        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Person</span><span class="o">.</span><span class="n">fname</span> <span class="o">==</span> <span class="n">fname</span><span class="p">)</span> \
+<span class="linenos">14</span>        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Person</span><span class="o">.</span><span class="n">lname</span> <span class="o">==</span> <span class="n">lname</span><span class="p">)</span> \
+<span class="linenos">15</span>        <span class="o">.</span><span class="n">one_or_none</span><span class="p">()</span>
+<span class="linenos">16</span>
+<span class="linenos">17</span>    <span class="c1"># Can we insert this person?</span>
+<span class="linenos">18</span>    <span class="k">if</span> <span class="n">existing_person</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="linenos">19</span>
+<span class="linenos">20</span>        <span class="c1"># Create a person instance using the schema and the passed-in person</span>
+<span class="linenos">21</span>        <span class="n">schema</span> <span class="o">=</span> <span class="n">PersonSchema</span><span class="p">()</span>
+<span class="linenos">22</span>        <span class="n">new_person</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+<span class="linenos">23</span>
+<span class="linenos">24</span>        <span class="c1"># Add the person to the database</span>
+<span class="linenos">25</span>        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_person</span><span class="p">)</span>
+<span class="linenos">26</span>        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+<span class="linenos">27</span>
+<span class="linenos">28</span>        <span class="c1"># Serialize and return the newly created person in the response</span>
+<span class="linenos">29</span>        <span class="k">return</span> <span class="n">schema</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">new_person</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">201</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span>    <span class="c1"># Otherwise, nope, person exists already</span>
+<span class="linenos">32</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos">33</span>        <span class="n">abort</span><span class="p">(</span><span class="mi">409</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'Person </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">lname</span><span class="si">}</span><span class="s1"> exists already'</span><span class="p">)</span>
+</code></pre></div>
+<p>Here’s what the above code is doing:</p>
+<ul>
+<li>
+<p><strong>Line 9 &amp; 10</strong> set the <code>fname</code> and <code>lname</code> variables based on the <code>Person</code> data structure sent as the <code>POST</code> body of the HTTP request.</p>
+</li>
+<li>
+<p><strong>Lines 12 – 15</strong> use the SQLAlchemy <code>Person</code> class to query the database for the existence of a person with the same <code>fname</code> and <code>lname</code> as the passed-in <code>person</code>.</p>
+</li>
+<li>
+<p><strong>Line 18</strong> addresses whether <code>existing_person</code> is <code>None</code>. (<code>existing_person</code> was not found.)</p>
+</li>
+<li>
+<p><strong>Line 21</strong> creates a <code>PersonSchema()</code> instance called <code>schema</code>.</p>
+</li>
+<li>
+<p><strong>Line 22</strong> uses the <code>schema</code> variable to load the data contained in the <code>person</code> parameter variable and create a new SQLAlchemy <code>Person</code> instance variable called <code>new_person</code>.</p>
+</li>
+<li>
+<p><strong>Line 25</strong> adds the <code>new_person</code> instance to the <code>db.session</code>.</p>
+</li>
+<li>
+<p><strong>Line 26</strong> commits the <code>new_person</code> instance to the database, which also assigns it a new primary key value (based on the auto-incrementing integer) and a UTC-based timestamp.</p>
+</li>
+<li>
+<p><strong>Line 33</strong> shows that, if <code>existing_person</code> is not <code>None</code> (a matching person was found), then the Flask <code>abort()</code> method is called to return an error.</p>
+</li>
+</ul>
+<div><div class="rounded border border-light" style="display:block;position:relative;"><div style="display:block;width:100%;padding-top:12.5%;"></div><div class="rpad rounded border" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/11047472137/?c=67692636049&amp;p=58946116052&amp;r=51207" rel="nofollow" target="_blank"><img src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/800de62e257647acd395a9ec8b1a0648" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div></div><a class="small text-muted" href="https://realpython.com/account/join/" rel="nofollow"><i aria-hidden="true" class="fa fa-info-circle"> </i> Remove ads</a></div></section><section class="section3" id="update-the-swagger-ui"><h3>Update the Swagger UI<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-swagger-ui" title="Permanent link"></a></h3>
+<p>With the above changes in place, your REST API is now functional. The changes you’ve made are also reflected in an updated swagger UI interface and can be interacted with in the same manner. Below is a screenshot of the updated swagger UI opened to the <code>GET /people/{person_id}</code> section. This section of the UI gets a single person from the database and looks like this:</p>
+<figure><a href="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/swagger_ui_complete_p2.webp" target="_blank"><img loading="lazy" class="img-fluid mx-auto d-block " src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/swagger_ui_complete_p2.webp" width="977" height="870" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/swagger_ui_complete_p2.2e6f29142f88.png&amp;w=244&amp;sig=f6e90cfdbf3ba9ce95911b81d50d6516ad392174 244w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/swagger_ui_complete_p2.2e6f29142f88.png&amp;w=488&amp;sig=ef3e0fc77846f31ba1165dd8a0669bb2278cd7a0 488w, https://files.realpython.com/media/swagger_ui_complete_p2.2e6f29142f88.png 977w" sizes="75vw" alt="Swagger UI Complete Part 2" data-asset="658"></a></figure>
+<p>As shown in the above screenshot, the path parameter <code>lname</code> has been replaced by <code>person_id</code>, which is the primary key for a person in the REST API. The changes to the UI are a combined result of changing the <code>swagger.yml</code> file and the code changes made to support that.</p>
+</section><section class="section3" id="update-the-web-application"><h3>Update the Web Application<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-web-application" title="Permanent link"></a></h3>
+<p>The REST API is running, and CRUD operations are being persisted to the database. So that it is possible to view the demonstration web application, the JavaScript code has to be updated. </p>
+<p>The updates are again related to using <code>person_id</code> instead of <code>lname</code> as the primary key for person data. In addition, the <code>person_id</code> is attached to the rows of the display table as HTML data attributes named <code>data-person-id</code>, so the value can be retrieved and used by the JavaScript code.</p>
+<p>This article focused on the database and making your REST API use it, which is why there’s just a link to the updated <a href="https://github.com/realpython/materials/blob/master/flask-connexion-rest-part-2/version_1/static/js/home.js">JavaScript source</a> and not much discussion of what it does.</p>
+</section></section><section class="section2" id="example-code"><h2>Example Code<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#example-code" title="Permanent link"></a></h2>
+<p>All of the example code for this article is available <a href="https://github.com/realpython/materials/tree/master/flask-connexion-rest-part-2">here</a>. There’s one version of the code containing all the files, including the <code>build_database.py</code> utility program and the <code>server.py</code> modified example program from Part 1.</p>
+</section><section class="section2" id="conclusion"><h2>Conclusion<a class="headerlink" href="https://realpython.com/flask-connexion-rest-api-part-2/#conclusion" title="Permanent link"></a></h2>
+<p>Congratulations, you’ve covered a lot of new material in this article and added useful tools to your arsenal!</p>
+<p>You’ve learned how to save Python objects to a database using SQLAlchemy. You’ve also learned how to use Marshmallow to serialize and deserialize SQLAlchemy objects and use them with a JSON REST API. The things you’ve learned have certainly been a step up in complexity from the simple REST API of Part 1, but that step has given you two very powerful tools to use when creating more complex applications.</p>
+<p>SQLAlchemy and Marshmallow are amazing tools in their own right. Using them together gives you a great leg up to create your own web applications backed by a database.</p>
+<p>In Part 3 of this series, you’ll focus on the <code>R</code> part of <code>RDBMS</code>: relationships, which provide even more power when you are using a database.</p>
+<div class="container py-3 series-nav mb-3">
+<div class="row justify-content-between">
+<div class="col-12 col-md-3 text-left text-muted ml-1"><a href="https://realpython.com/flask-connexion-rest-api/"> «&nbsp;Part 1: REST APIs With Flask + Connexion</a></div>
+<div class="col-12 col-md-3 text-center text-muted"><a href="https://realpython.com/flask-connexion-rest-api-part-2/#">Part 2: Database Persistence</a></div>
+<div class="col-12 col-md-3 text-right text-muted mr-1"><a href="https://realpython.com/flask-connexion-rest-api-part-3/">Part 3: Database Relationships&nbsp;»</a></div>
+</div>
+</div>
+</section>
+<div class="text-center my-3">
+<div class="jsCompletionStatusWidget btn-group mb-0">
+<button title="Click to mark as completed" class="jsBtnCompletion btn btn-secondary border-right" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">Mark as Completed</button>
+<button title="Add bookmark" class="jsBtnBookmark btn btn-secondary border-left"><i class="fa fa-fw fa-bookmark-o"></i></button>
+</div>
+</div>
+</div>
+<div class="card mt-4 mb-4 bg-secondary">
+<p class="card-header h3 text-center bg-light">🐍 Python Tricks 💌</p>
+<div class="card-body">
+<div class="container">
+<div class="row">
+<div class="col-xs-12 col-sm-7">
+<p>Get a short &amp; sweet <strong>Python Trick</strong> delivered to your inbox every couple of days. No spam ever. Unsubscribe any time. Curated by the Real Python team.</p>
+</div>
+<div class="col-xs-12 col-sm-5">
+<img class="img-fluid rounded mb-3" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/pytrick-dict-merge.webp" width="738" height="490" alt="Python Tricks Dictionary Merge">
+</div>
+</div>
+<div class="row mb-3">
+<form class="col-12" action="https://realpython.com/optins/process/" method="post">
+<input type="hidden" name="csrfmiddlewaretoken" value="MkVWIl9MMOSneCPo7Wx9dbvSBbM96jvFHMQ0fGY4ViSzgGNfFDjZRDfOt4362SS4">
+<input type="hidden" name="slug" value="static-python-tricks-footer">
+<div class="form-group">
+<input name="email" type="email" class="form-control form-control-lg" placeholder="Email Address" required="">
+</div>
+<button name="submit" type="submit" class="btn btn-primary btn-lg btn-block">Send Me Python Tricks »</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+<div class="card mt-3" id="author">
+<p class="card-header h3">About <strong>Doug Farrell</strong></p>
+<div class="card-body">
+<div class="container p-0">
+<div class="row">
+<div class="col-12 col-md-3 align-self-center">
+<a href="https://realpython.com/team/dfarrell/"><img loading="lazy" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/saved_resource" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/author-df.aa73a07afa57.jpg&amp;w=50&amp;h=50&amp;mode=crop&amp;sig=e16428ab87dd25ec732b8da8c79832eca2d209c8 50w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/author-df.aa73a07afa57.jpg&amp;w=100&amp;h=100&amp;mode=crop&amp;sig=37f68a028d6e59762d4313dd01a72455752459b9 100w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/author-df.aa73a07afa57.jpg&amp;w=200&amp;h=200&amp;mode=crop&amp;sig=259baf8c71f368867f32293e2692905daaadf859 200w" sizes="25vw" width="200" height="200" class="d-block d-md-none rounded-circle img-fluid w-33 mb-0 mx-auto" alt="Doug Farrell"></a>
+<a href="https://realpython.com/team/dfarrell/"><img loading="lazy" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/saved_resource" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/author-df.aa73a07afa57.jpg&amp;w=50&amp;h=50&amp;mode=crop&amp;sig=e16428ab87dd25ec732b8da8c79832eca2d209c8 50w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/author-df.aa73a07afa57.jpg&amp;w=100&amp;h=100&amp;mode=crop&amp;sig=37f68a028d6e59762d4313dd01a72455752459b9 100w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/author-df.aa73a07afa57.jpg&amp;w=200&amp;h=200&amp;mode=crop&amp;sig=259baf8c71f368867f32293e2692905daaadf859 200w" sizes="25vw" width="200" height="200" class="d-none d-md-block rounded-circle img-fluid w-100 mb-0" alt="Doug Farrell"></a>
+</div>
+<div class="col mt-3">
+<p>Doug is a Python developer with more than 25 years of experience. He writes about Python on his personal website and works as a Senior Web Engineer with Shutterfly.</p>
+<a href="https://realpython.com/team/dfarrell/" class="card-link">» More about Doug</a>
+</div>
+</div>
+</div>
+</div>
+<hr class="my-0">
+<div class="card-body pb-0">
+<div class="container">
+<div class="row">
+<p><em>Each tutorial at Real Python is created by a team of developers so that it meets our high quality standards. The team members who worked on this tutorial are:</em></p>
+</div>
+<div class="row align-items-center w-100 mx-auto">
+<div class="col-4 col-sm-2 align-self-center">
+<a href="https://realpython.com/team/asantos/"><img loading="lazy" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/saved_resource(1)" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/asantos-avatar.888c78fffab3.jpg&amp;w=175&amp;h=175&amp;mode=crop&amp;sig=30253487c673fd67bb45ea6bef95b3c57e115e46 175w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/asantos-avatar.888c78fffab3.jpg&amp;w=350&amp;h=350&amp;mode=crop&amp;sig=a43bd9ea30a6f61a4fc2451ab9abfc6faec8a2c0 350w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/asantos-avatar.888c78fffab3.jpg&amp;w=700&amp;h=700&amp;mode=crop&amp;sig=be17609cd7f6a4cd249ff61e186b3ad1aece949c 700w" sizes="10vw" width="200" height="200" class="rounded-circle img-fluid w-100" alt="Aldren Santos"></a>
+</div>
+<div class="col pl-0 d-none d-sm-block">
+<a href="https://realpython.com/team/asantos/" class="card-link small"><p>Aldren</p></a>
+</div>
+<div class="col-4 col-sm-2 align-self-center">
+<a href="https://realpython.com/team/dbader/"><img loading="lazy" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/saved_resource(2)" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/daniel-square.d58bf4388750.jpg&amp;w=250&amp;h=250&amp;mode=crop&amp;sig=981634b4528584f2e9c7ee663477173599e1781a 250w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/daniel-square.d58bf4388750.jpg&amp;w=500&amp;h=500&amp;mode=crop&amp;sig=841025b97d25f05c1b90802032e477020462fe01 500w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/daniel-square.d58bf4388750.jpg&amp;w=1000&amp;h=1000&amp;mode=crop&amp;sig=304f5f568993310d5e87b2ca3c504260c018effa 1000w" sizes="10vw" width="200" height="200" class="rounded-circle img-fluid w-100" alt="Dan Bader"></a>
+</div>
+<div class="col pl-0 d-none d-sm-block">
+<a href="https://realpython.com/team/dbader/" class="card-link small"><p>Dan</p></a>
+</div>
+<div class="col-4 col-sm-2 align-self-center">
+<a href="https://realpython.com/team/jjablonski/"><img loading="lazy" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/saved_resource(3)" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/jjablonksi-avatar.e37c4f83308e.jpg&amp;w=200&amp;h=200&amp;mode=crop&amp;sig=706b16de3cb88a8f353f4a98d7c7bc7234229bd0 200w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/jjablonksi-avatar.e37c4f83308e.jpg&amp;w=400&amp;h=400&amp;mode=crop&amp;sig=6d7aa672ca3f1ac5f7cd62ed1641b60f98d04d8b 400w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/jjablonksi-avatar.e37c4f83308e.jpg&amp;w=800&amp;h=800&amp;mode=crop&amp;sig=c363b704eeccb35f2247db13baff3d4383459858 800w" sizes="10vw" width="200" height="200" class="rounded-circle img-fluid w-100" alt="Joanna Jablonski"></a>
+</div>
+<div class="col pl-0 d-none d-sm-block">
+<a href="https://realpython.com/team/jjablonski/" class="card-link small"><p>Joanna</p></a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-light rounded py-4 my-4 shadow shadow-sm mx-n2">
+<div class="col-12 text-center d-block d-md-none">
+<p class="h2 mb-3">Master <u><span class="marker-highlight">Real-World Python Skills</span></u> With Unlimited Access to Real&nbsp;Python</p>
+<p class="mb-1"><img class="w-75" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/lesson-locked.f5105cfd26db.svg"></p>
+<p class="mx-auto w-75 mb-3 small"><strong>Join us and get access to hundreds of tutorials, hands-on video courses, and a community of expert&nbsp;Pythonistas:</strong></p>
+<p class="mb-0"><a href="https://realpython.com/account/join/?utm_source=rp_article_footer&amp;utm_content=flask-connexion-rest-api-part-2" class="btn btn-primary btn-sm px-4 mb-0">Level Up Your Python Skills »</a>
+</p></div>
+<div class="col-12 text-center d-none d-md-block">
+<p class="h2 mb-2">Master <u><span class="marker-highlight">Real-World Python Skills</span></u><br>With Unlimited Access to Real&nbsp;Python</p>
+<p class="mb-2"><img class="w-50 mb-2" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/lesson-locked.f5105cfd26db.svg"></p>
+<p class="mx-auto w-50 mb-3"><strong>Join us and get access to hundreds of tutorials, hands-on video courses, and a community of expert Pythonistas:</strong></p>
+<p><a href="https://realpython.com/account/join/?utm_source=rp_article_footer&amp;utm_content=flask-connexion-rest-api-part-2" class="btn btn-primary btn-lg px-4">Level Up Your Python Skills »</a>
+</p></div>
+</div>
+<div class="card mt-4" id="reader-comments">
+<p class="card-header h3">What Do You Think?</p>
+<div class="text-center mt-3 mb-0 p-0">
+<span>
+<a target="_blank" rel="nofollow" href="https://twitter.com/intent/tweet/?text=Check%20out%20this%20%23Python%20tutorial:%20Python%20REST%20APIs%20With%20Flask%2C%20Connexion%2C%20and%20SQLAlchemy%20%E2%80%93%20Part%202%20by%20@realpython&amp;url=https%3A//realpython.com/flask-connexion-rest-api-part-2/" class="mr-1 badge badge-twitter text-light mb-1"><i class="mr-1 fa fa-twitter text-light"></i>Tweet</a>
+<a target="_blank" rel="nofollow" href="https://facebook.com/sharer/sharer.php?u=https%3A//realpython.com/flask-connexion-rest-api-part-2/" class="mr-1 badge badge-facebook text-light mb-1"><i class="mr-1 fa fa-facebook text-light"></i>Share</a>
+<a target="_blank" rel="nofollow" href="mailto:?subject=Python%20article%20for%20you&amp;body=Check%20out%20this%20Python%20tutorial:%0A%0APython%20REST%20APIs%20With%20Flask%2C%20Connexion%2C%20and%20SQLAlchemy%20%E2%80%93%20Part%202%0A%0Ahttps%3A//realpython.com/flask-connexion-rest-api-part-2/" class="mr-1 badge badge-red text-light mb-1"><i class="mr-1 fa fa-envelope text-light"></i>Email</a>
+</span>
+</div>
+<div class="card-body">
+<div class="alert alert-dark">
+<p class="mb-0"><strong>Real Python Comment Policy:</strong> The most useful comments are those written with the goal of learning from or helping out other readers—after reading the whole article and all the earlier comments. Complaints and insults generally won’t make the cut here.</p>
+</div>
+<p>What’s your #1 takeaway or favorite thing you learned? How are you going to put your newfound skills to use? Leave a comment below and let us know.</p>
+<div class="mb-4" id="disqus_thread">
+</div>
+</div>
+</div>
+<div class="card mt-4 mb-4">
+<p class="card-header h3">Keep Learning</p>
+<div class="card-body">
+<p class="mb-0">Related Tutorial Categories:
+<a href="https://realpython.com/tutorials/api/" class="badge badge-light text-muted">api</a>
+<a href="https://realpython.com/tutorials/databases/" class="badge badge-light text-muted">databases</a>
+<a href="https://realpython.com/tutorials/flask/" class="badge badge-light text-muted">flask</a>
+<a href="https://realpython.com/tutorials/intermediate/" class="badge badge-light text-muted">intermediate</a>
+<a href="https://realpython.com/tutorials/web-dev/" class="badge badge-light text-muted">web-dev</a>
+</p>
+</div>
+</div>
+<div class="modal fade" tabindex="-1" id="rpvc" style="display: none;" aria-hidden="true">
+<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header border-0 mt-3">
+<div class="col-12 modal-title text-center">
+<h2 class="my-0 mx-5">Master <u>Real-World Python Skills</u> With Unlimited Access to Real Python</h2>
+<p class="text-center text-muted mt-2 mb-1">Already a member? <a href="https://realpython.com/account/login/">Sign-In</a></p>
+</div>
+</div>
+<div class="modal-body bg-light">
+<div class="col-12 text-center">
+<p class="mb-2 mt-3"><a href="https://realpython.com/account/join/?utm_source=rp&amp;utm_medium=web&amp;utm_campaign=pwn&amp;utm_content=v2"><img class="w-50 mb-2" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/lesson-locked.f5105cfd26db.svg"></a></p>
+<p class="mx-auto w-66 mb-3"><strong>Join us and get access to hundreds of tutorials, hands-on video courses, and a community of expert Pythonistas:</strong></p>
+<p><a href="https://realpython.com/account/join/?utm_source=rp&amp;utm_medium=web&amp;utm_campaign=pwn&amp;utm_content=v2" class="btn btn-primary btn-lg px-4"><i class="fa fa-unlock mr-2"></i>Unlock All Content »</a>
+</p></div>
+</div>
+<div class="modal-footer border-0">
+<button class="text-muted btn" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<aside class="col-md-7 col-lg-4">
+<div class="card mb-3 bg-secondary">
+<form class="card-body" action="https://realpython.com/optins/process/" method="post">
+<div class="form-group">
+<p class="h5 text-muted text-center">— FREE Email Series —</p>
+<p class="h3 text-center">🐍 Python Tricks 💌</p>
+<p><img class="img-fluid rounded" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/pytrick-dict-merge.webp" width="738" height="490" alt="Python Tricks Dictionary Merge"></p>
+</div>
+<div class="form-group">
+<input type="hidden" name="csrfmiddlewaretoken" value="MkVWIl9MMOSneCPo7Wx9dbvSBbM96jvFHMQ0fGY4ViSzgGNfFDjZRDfOt4362SS4">
+<input type="hidden" name="slug" value="static-python-tricks-sidebar">
+<input type="email" class="form-control form-control-md" name="email" placeholder="Email…" required="">
+</div>
+<button type="submit" name="submit" class="btn btn-primary btn-md btn-block">Get Python Tricks »</button>
+<p class="mb-0 mt-2 text-muted text-center">🔒 No spam. Unsubscribe any time.</p>
+</form>
+</div>
+<div class="sidebar-module sidebar-module-inset border">
+<p class="h4"><a class="link-unstyled" href="https://realpython.com/tutorials/all/">All Tutorial Topics</a></p>
+<a href="https://realpython.com/tutorials/advanced/" class="badge badge-light text-muted">advanced</a>
+<a href="https://realpython.com/tutorials/api/" class="badge badge-light text-muted">api</a>
+<a href="https://realpython.com/tutorials/basics/" class="badge badge-light text-muted">basics</a>
+<a href="https://realpython.com/tutorials/best-practices/" class="badge badge-light text-muted">best-practices</a>
+<a href="https://realpython.com/tutorials/community/" class="badge badge-light text-muted">community</a>
+<a href="https://realpython.com/tutorials/databases/" class="badge badge-light text-muted">databases</a>
+<a href="https://realpython.com/tutorials/data-science/" class="badge badge-light text-muted">data-science</a>
+<a href="https://realpython.com/tutorials/devops/" class="badge badge-light text-muted">devops</a>
+<a href="https://realpython.com/tutorials/django/" class="badge badge-light text-muted">django</a>
+<a href="https://realpython.com/tutorials/docker/" class="badge badge-light text-muted">docker</a>
+<a href="https://realpython.com/tutorials/flask/" class="badge badge-light text-muted">flask</a>
+<a href="https://realpython.com/tutorials/front-end/" class="badge badge-light text-muted">front-end</a>
+<a href="https://realpython.com/tutorials/gamedev/" class="badge badge-light text-muted">gamedev</a>
+<a href="https://realpython.com/tutorials/gui/" class="badge badge-light text-muted">gui</a>
+<a href="https://realpython.com/tutorials/intermediate/" class="badge badge-light text-muted">intermediate</a>
+<a href="https://realpython.com/tutorials/machine-learning/" class="badge badge-light text-muted">machine-learning</a>
+<a href="https://realpython.com/tutorials/projects/" class="badge badge-light text-muted">projects</a>
+<a href="https://realpython.com/tutorials/python/" class="badge badge-light text-muted">python</a>
+<a href="https://realpython.com/tutorials/testing/" class="badge badge-light text-muted">testing</a>
+<a href="https://realpython.com/tutorials/tools/" class="badge badge-light text-muted">tools</a>
+<a href="https://realpython.com/tutorials/web-dev/" class="badge badge-light text-muted">web-dev</a>
+<a href="https://realpython.com/tutorials/web-scraping/" class="badge badge-light text-muted">web-scraping</a>
+</div>
+<div class="sidebar-module sidebar-module-inset p-0" style="overflow:hidden;">
+<div style="display:block;position:relative;">
+<div style="display:block;width:100%;padding-top:100%;"></div>
+<div class="rpad" data-unit="1x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/10526658676/?c=56207115366&amp;p=58946116052&amp;r=07974" rel="nofollow" target="_blank"><img src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/601d54204523ca735db6c56feafc328a" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div>
+</div>
+</div>
+<div class="sidebar-sticky sidebar-nav-message">
+<div class="bg-light sidebar-module sidebar-module-inset" id="sidebar-toc">
+<p class="h4 text-muted"><a class="link-unstyled" href="https://realpython.com/flask-connexion-rest-api-part-2/#toc">Table of Contents</a></p>
+<div class="toc">
+<ul>
+<li class=""><a href="https://realpython.com/flask-connexion-rest-api-part-2/#who-this-article-is-for">Who This Article Is For</a></li>
+<li class=""><a href="https://realpython.com/flask-connexion-rest-api-part-2/#additional-dependencies">Additional Dependencies</a></li>
+<li class="active"><a href="https://realpython.com/flask-connexion-rest-api-part-2/#people-data">People Data</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#database-interaction">Database Interaction</a><ul>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#little-bobby-tables">Little Bobby Tables</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#modeling-data-with-sqlalchemy">Modeling Data With SQLAlchemy</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#serializingdeserializing-modeled-data">Serializing/Deserializing Modeled Data</a></li>
+</ul>
+</li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#create-the-initialized-database">Create the Initialized Database</a><ul>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#config-module">Config Module</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#models-module">Models Module</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#creating-the-database">Creating the Database</a></li>
+</ul>
+</li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#using-the-database">Using the Database</a><ul>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-rest-api">Update the REST API</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-rest-api-handlers">Update the REST API Handlers</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-swagger-ui">Update the Swagger UI</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#update-the-web-application">Update the Web Application</a></li>
+</ul>
+</li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#example-code">Example Code</a></li>
+<li><a href="https://realpython.com/flask-connexion-rest-api-part-2/#conclusion">Conclusion</a></li>
+</ul>
+</div>
+</div>
+<div class="sidebar-module sidebar-module-inset text-center my-3 py-0">
+<div class="jsCompletionStatusWidget btn-group mb-0">
+<button title="Click to mark as completed" class="jsBtnCompletion btn btn-secondary border-right" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">Mark as Completed</button>
+<button title="Add bookmark" class="jsBtnBookmark btn btn-secondary border-left"><i class="fa fa-fw fa-bookmark-o"></i></button>
+</div>
+</div>
+<div class="sidebar-module sidebar-module-inset text-center my-3 py-0">
+<span>
+<a target="_blank" rel="nofollow" href="https://twitter.com/intent/tweet/?text=Check%20out%20this%20%23Python%20tutorial:%20Python%20REST%20APIs%20With%20Flask%2C%20Connexion%2C%20and%20SQLAlchemy%20%E2%80%93%20Part%202%20by%20@realpython&amp;url=https%3A//realpython.com/flask-connexion-rest-api-part-2/" class="mr-1 badge badge-twitter text-light mb-1"><i class="mr-1 fa fa-twitter text-light"></i>Tweet</a>
+<a target="_blank" rel="nofollow" href="https://facebook.com/sharer/sharer.php?u=https%3A//realpython.com/flask-connexion-rest-api-part-2/" class="mr-1 badge badge-facebook text-light mb-1"><i class="mr-1 fa fa-facebook text-light"></i>Share</a>
+<a target="_blank" rel="nofollow" href="mailto:?subject=Python%20article%20for%20you&amp;body=Check%20out%20this%20Python%20tutorial:%0A%0APython%20REST%20APIs%20With%20Flask%2C%20Connexion%2C%20and%20SQLAlchemy%20%E2%80%93%20Part%202%0A%0Ahttps%3A//realpython.com/flask-connexion-rest-api-part-2/" class="mr-1 badge badge-red text-light mb-1"><i class="mr-1 fa fa-envelope text-light"></i>Email</a>
+</span>
+</div>
+<div class="sidebar-module sidebar-module-inset p-0" style="overflow:hidden;">
+<div style="display:block;position:relative;">
+<div style="display:block;width:100%;padding-top:25%;"></div>
+<div class="rpad" data-unit="4x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"><a href="https://srv.realpython.net/click/35017505416/?c=37384875857&amp;p=58946116052&amp;r=76497" rel="nofollow" target="_blank"><img src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/0fc9b00486dcc3d778445659b069cc10" style="max-width: 100%; max-height: 100%; width: 100%;"></a></div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+<div class="modal fade" id="modal-rest-api-guide-exampes" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+<div class="modal-content">
+<div class="modal-header bg-light pt-3 pb-2">
+<div class="container-fluid">
+<div class="row">
+<div class="col-12">
+<div class="progress" style="height: .5rem;">
+<div class="progress-bar progress-bar-striped progress-bar-animated w-50" role="progressbar"></div>
+</div>
+</div>
+<div class="col-12">
+<p class="text-muted text-center mb-0 mt-2">Almost there! Complete this form and click the button below to gain instant access:</p>
+</div>
+</div>
+</div>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">×</span>
+</button>
+</div>
+<div class="modal-body m-4">
+<div class="container-fluid">
+<div class="row align-items-center">
+<div class="col-12 col-lg-4 mb-4">
+<img class="img-fluid rounded" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/python-rest-api-guide.webp" width="1024" height="768" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/python-rest-api-guide.d45ad1f2e68c.jpg&amp;w=256&amp;sig=8801b0ffd21153d0cad7e7940062433dc7b40853 256w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/python-rest-api-guide.d45ad1f2e68c.jpg&amp;w=512&amp;sig=eebafaaa9aac9a108404a449c7bddc172d1eca55 512w, https://files.realpython.com/media/python-rest-api-guide.d45ad1f2e68c.jpg 1024w" sizes="50vw" alt="Python REST API Guide">
+</div>
+<div class="col">
+<p class="text-center h3 mb-4">Practical REST API Examples (PDF Guide)</p>
+<form class="col-12" action="https://realpython.com/optins/process/" method="post">
+<input type="hidden" name="csrfmiddlewaretoken" value="MkVWIl9MMOSneCPo7Wx9dbvSBbM96jvFHMQ0fGY4ViSzgGNfFDjZRDfOt4362SS4">
+<input type="hidden" name="slug" value="rest-api-guide-exampes">
+<div class="form-group">
+<input type="email" name="email" class="form-control" placeholder="Email Address" required="" autofocus="">
+</div>
+<button name="submit" type="submit" class="btn btn-primary btn-block text-wrap">Send My Free Download »</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<footer class="footer">
+<div class="container">
+<p class="text-center text-muted w-75 mx-auto">© 2012–2021 Real Python&nbsp;⋅ <a href="https://realpython.com/newsletter/">Newsletter</a>&nbsp;⋅ <a href="https://realpython.com/podcasts/rpp/">Podcast</a>&nbsp;⋅ <a href="https://www.youtube.com/realpython">YouTube</a>&nbsp;⋅ <a href="https://twitter.com/realpython">Twitter</a>&nbsp;⋅ <a href="https://facebook.com/LearnRealPython">Facebook</a>&nbsp;⋅ <a href="https://www.instagram.com/realpython/">Instagram</a>&nbsp;⋅ <a href="https://realpython.com/">Python&nbsp;Tutorials</a>&nbsp;⋅ <a href="https://realpython.com/search">Search</a>&nbsp;⋅ <a href="https://realpython.com/privacy-policy/">Privacy Policy</a>&nbsp;⋅ <a href="https://realpython.com/energy-policy/" class="text-success active">Energy Policy</a>&nbsp;⋅ <a href="https://realpython.com/sponsorships/">Advertise</a>&nbsp;⋅ <a href="https://realpython.com/contact/">Contact</a><br>❤️ Happy Pythoning!</p>
+</div>
+</footer>
+<script>
+      (function(document, history, location) {
+        var HISTORY_SUPPORT = !!(history && history.pushState);
+
+        var anchorScrolls = {
+          ANCHOR_REGEX: /^#[^ ]+$/,
+          OFFSET_HEIGHT_PX: 120,
+
+          /**
+           * Establish events, and fix initial scroll position if a hash is provided.
+           */
+          init: function() {
+            this.scrollToCurrent();
+            window.addEventListener('hashchange', this.scrollToCurrent.bind(this));
+            document.body.addEventListener('click', this.delegateAnchors.bind(this));
+          },
+
+          /**
+           * Return the offset amount to deduct from the normal scroll position.
+           * Modify as appropriate to allow for dynamic calculations
+           */
+          getFixedOffset: function() {
+            return this.OFFSET_HEIGHT_PX;
+          },
+
+          /**
+           * If the provided href is an anchor which resolves to an element on the
+           * page, scroll to it.
+           * @param  {String} href
+           * @return {Boolean} - Was the href an anchor.
+           */
+          scrollIfAnchor: function(href, pushToHistory) {
+            var match, rect, anchorOffset;
+
+            if(!this.ANCHOR_REGEX.test(href)) {
+              return false;
+            }
+
+            match = document.getElementById(href.slice(1));
+
+            if(match) {
+              rect = match.getBoundingClientRect();
+              anchorOffset = window.pageYOffset + rect.top - this.getFixedOffset();
+              window.scrollTo(window.pageXOffset, anchorOffset);
+
+              // Add the state to history as-per normal anchor links
+              if(HISTORY_SUPPORT && pushToHistory) {
+                history.pushState({}, document.title, location.pathname + href);
+              }
+            }
+
+            return !!match;
+          },
+
+          /**
+           * Attempt to scroll to the current location's hash.
+           */
+          scrollToCurrent: function() {
+            this.scrollIfAnchor(window.location.hash);
+          },
+
+          /**
+           * If the click event's target was an anchor, fix the scroll position.
+           */
+          delegateAnchors: function(e) {
+            var elem = e.target;
+
+            if(
+              elem.nodeName === 'A' &&
+              this.scrollIfAnchor(elem.getAttribute('href'), true)
+            ) {
+              e.preventDefault();
+            }
+          }
+        };
+
+        window.addEventListener(
+          'DOMContentLoaded', anchorScrolls.init.bind(anchorScrolls)
+        );
+      })(window.document, window.history, window.location);
+    </script>
+<script src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/jquery.min.8fb8fee4fcc3.js"></script>
+<script src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/popper.min.1022eaf388cc.js"></script>
+<script src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/bootstrap.min.f0c2bcf5ef0c.js"></script>
+<script>
+    (function() {
+      document.querySelectorAll(".js-search-form-submit").forEach(function(el) {
+        el.addEventListener("click", function(e) {
+          e.preventDefault();
+          e.currentTarget.parentElement.submit();
+        })
+      });
+    })();
+    </script>
+<script src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/repl-toggle.71b73a938a7f.js"></script>
+<script>window.rp_prop_id = '58946116052';</script>
+<script src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/tag.js" async=""></script>
+<script src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/toc-refresh.76a102c7d921.js" async=""></script>
+<script id="js-context" type="application/json">{"is_completed": false, "is_bookmarked": false, "api_article_bookmark_url": "/api/v1/articles/flask-connexion-rest-api-part-2/bookmark/", "api_article_completion_status_url": "/api/v1/articles/flask-connexion-rest-api-part-2/completion_status/"}</script>
+<script src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/completion-status.942e497c32e4.js" async=""></script>
+<script id="dsq-count-scr" src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/count.js" async=""></script>
+<script>
+      var disqus_config = function () {
+        this.page.url = 'https://realpython.com/flask-connexion-rest-api-part-2/';
+        this.page.identifier = 'https://realpython.com/flask-connexion-rest-api-part-2/';
+        this.callbacks.onReady = [function() {
+          if (window.onDisqusReady) {
+            window.onDisqusReady();
+          }
+        }];
+      };
+      var disqus_script_url = 'https://realpython.disqus.com/embed.js';
+    </script>
+<script src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/lazy-disqus.07ee9079f4a3.js" defer=""></script>
+<script src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/OneSignalSDK.js" async=""></script>
+<script>
+    var OneSignal = window.OneSignal || [];
+    OneSignal.push(function() {
+      OneSignal.init({
+        appId: "c0081e20-a523-42bb-b0ac-04c5a9e8bf40"
+      });
+    });
+  </script>
+<script src="./Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2 – Real Python_files/articlevc.2fbd5158a355.js" defer=""></script>
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Python REST APIs With Flask, Connexion, and SQLAlchemy – Part 2",
+    
+    "image": {
+      "@type": "ImageObject",
+      "url": "https://files.realpython.com/media/Building-and-Documenting-Python-REST-APIs-With-Flask-and-Connexion_Watermarked.4f126f60be3f.jpg",
+      "width": 1920,
+      "height": 1080
+    },
+    
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://realpython.com/flask-connexion-rest-api-part-2/"
+    },
+    "datePublished": "2018-10-03T14:00:00+00:00",
+    "dateModified": "2021-01-16T01:52:07.552220+00:00",
+     "publisher": {
+      "@type": "Organization",
+      "name": "Real Python",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://cdn.realpython.com/static/real-python-logo-square-tiny.b2452b6d3823.png",
+        "width": 60,
+        "height": 60
+      }
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "Real Python",
+      "url": "https://realpython.com",
+      "logo": "https://cdn.realpython.com/static/real-python-logo-square.146e987bf77c.png"
+    },
+    "description": "In Part 2 of this series, you\u0027ll learn how to persist the CRUD operations from the Python\u002Dpowered REST API created in Part 1 to a database using SQLAlchemy and Marshmallow."
+  }
+  </script>
+<script>
+  var _dcq = _dcq || [];
+  var _dcs = _dcs || {};
+  _dcs.account = '6214500';
+
+  (function() {
+    var dc = document.createElement('script');
+    dc.type = 'text/javascript'; dc.async = true;
+    dc.src = '//tag.getdrip.com/6214500.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(dc, s);
+  })();
+</script>
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '2220911568135371');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=2220911568135371&ev=PageView&noscript=1"
+/></noscript>
+<script type="text/javascript">
+      (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", "72a4e032ed");
+    </script>
+<script type="text/javascript">(function(){window['__CF$cv$params']={r:'6608f919480441f0',m:'d10e5e204cc28fe36bb5d038bd6385e23b8e928f-1623898254-1800-AXuwEblwGOGUFvLFZGgx8PZAtYIjHyqXu9CZkkOqLZzEkvilUlWYYzJXGame+yXuGpOQrzF+X6JJzVp44LWP2T8FOmlpViCssBPyd0TIaw9APG5JELl3oTPfBW2/HUhCVBkjuQLn9AHgXuwEsX14QFg26iFRQ8B06lnFQS4H6cDF',s:[0xde4064432a,0x9bdba40d6f],}})();</script>
+
+<div id="vldt-unmoderated-testing" class="vldt-installed" style="display: none;"></div><div class="betternet-wrapper"></div></body></html>
